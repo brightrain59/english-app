@@ -367,6 +367,7 @@ const speak = (text) => {
   fontSize: "22px",
   fontWeight: "bold"
 }}>✍️ Words in a Paragraph</h3>
+<p>각 단락의 빈칸에 들어가기에 가장 알맞은 단어를 골라 직접 입력하세요.</p>
 
 <div style={{ textAlign: "left", maxWidth: "600px", margin: "0 auto" }}>
 <h4 style={{ marginBottom: "5px", marginTop: "30px" }}>
