@@ -70,8 +70,8 @@ export default function App() {
   ex1: [
     { text: "go on a journey", meaning: "여행을 가다" },
     { text: "feel ill", meaning: "아프다" },
-    { text: "avoid ~ing", meaning: "~하는 것을 피하다" },
-    { text: "take a photograph / photo", meaning: "사진을 찍다" }
+    { text: "avoid doing ~", meaning: "~하는 것을 피하다" },
+    { text: "take a photograph", meaning: "사진을 찍다" }
   ],
   ex2: [
     { text: "play a soccer game", meaning: "축구 경기를 하다" },
@@ -103,7 +103,8 @@ export default function App() {
 };
 
 const speak = (text) => {
-  const audio = new Audio(`/audio/${text}.mp3`);
+  const safeText = text.toLowerCase().replace(/\s+/g, "-");
+  const audio = new Audio(`/audio/${safeText}.mp3`);
   audio.play();
 };
 
@@ -204,7 +205,7 @@ const speak = (text) => {
   fontSize: "22px",
   fontWeight: "bold"
 }}>🧠 Word Classification</h3>
-<p>각 단어 그룹에서 나머지 셋과 다른 하나를 클릭하세요.</p>
+<p>각 단어 그룹에서 나머지 셋과 관련성이 가장 적은 것을 클릭하세요.</p>
 
       {quizData.map((q, i) => (
         <div key={i}>
@@ -440,15 +441,15 @@ Later I felt better and took a photograph of the beautiful sea and mountains.`
 
     <div>
       <span style={{ color: "blue", cursor: "pointer" }}
-        onClick={() => speak("avoid ~ing")}>
-        🔊 avoid ~ing
+        onClick={() => speak("avoid doing ~")}>
+        🔊 avoid doing ~
       </span> - ~하는 것을 피하다
     </div>
 
     <div>
       <span style={{ color: "blue", cursor: "pointer" }}
-        onClick={() => speak("take a photograph / photo")}>
-        🔊 take a photograph / photo
+        onClick={() => speak("take a photograph")}>
+        🔊 take a photograph
       </span> - 사진을 찍다
     </div>
   </div>
