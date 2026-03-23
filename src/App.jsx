@@ -143,6 +143,34 @@ const speak = (text) => {
   fontSize: "26px",
   fontWeight: "bold"
 }}>Unit 1. My Daily Life & Growth, Part I</h2>
+<div style={{
+  background: "#ffffffcc",
+  padding: "10px",
+  borderRadius: "15px",
+  marginBottom: "20px"
+}}>
+  <h3>📑 목차</h3>
+
+  <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", justifyContent: "center" }}>
+    
+    <button style={buttonStyle} onClick={() => document.getElementById("words").scrollIntoView({ behavior: "smooth" })}>
+      Words to Learn
+    </button>
+
+    <button style={buttonStyle} onClick={() => document.getElementById("classification").scrollIntoView({ behavior: "smooth" })}>
+      Word Classification
+    </button>
+
+    <button style={buttonStyle} onClick={() => document.getElementById("matching").scrollIntoView({ behavior: "smooth" })}>
+      Expression Matching
+    </button>
+
+    <button style={buttonStyle} onClick={() => document.getElementById("paragraph").scrollIntoView({ behavior: "smooth" })}>
+      Words in a Paragraph
+    </button>
+
+  </div>
+</div>
 <h3 style={{
   marginTop: "30px",
   color: "#222",
