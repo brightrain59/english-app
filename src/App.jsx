@@ -392,13 +392,7 @@ const speak = (text) => {
     </div>
   );
 })()}
-<button style={buttonStyle} onClick={() => speak(
-`Last summer, I went on a long journey with my family. 
-On the first day, I felt ill and had a fever. 
-I had some pain in my head. 
-I tried to avoid walking too much. 
-Later I felt better and took a photograph of the beautiful sea and mountains.`
-)}>
+<button style={buttonStyle} onClick={() => speak("paragraph1")}>
 🔊 듣기
 </button>
 <button
@@ -522,13 +516,7 @@ Last summer, I went on a long (<input id="p1" style={{
     </div>
   );
 })()}
-<button style={buttonStyle} onClick={() => speak(
-`Yesterday our school team played a soccer game. 
-Many students came to watch and cheer. 
-Our players tried very hard, so I admire them. 
-Even when they made mistakes, they did not show anger. 
-In the end, our team won the game, and we felt very proud.`
-)}>
+<button style={buttonStyle} onClick={() => speak("paragraph2")}>
 🔊 듣기
 </button>
 <button
@@ -646,13 +634,7 @@ Yesterday our school team played a soccer game. Many students came to watch and 
     </div>
   );
 })()}
-<button style={buttonStyle} onClick={() => speak(
-`In my English class, I like to hear my teacher speak with a clear accent. 
-Sometimes we watch funny videos and laugh together. 
-I also like to put a pin on a map of English-speaking countries. 
-It was my choice to study English every day. 
-I hope to travel soon and feel alive in a new place.`
-)}>
+<button style={buttonStyle} onClick={() => speak("paragraph3")}>
 🔊 듣기
 </button>
 <button
