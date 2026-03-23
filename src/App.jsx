@@ -102,26 +102,9 @@ export default function App() {
   boxShadow: "0 4px 10px rgba(0,0,0,0.2)"
 };
 
-let voiceIndex = 0;
-
 const speak = (text) => {
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = "en-US";
-
-  const voices = speechSynthesis.getVoices();
-
-  if (voices.length > 0) {
-    const enVoices = voices.filter(v => v.lang.includes("en"));
-
-    if (enVoices.length >= 2) {
-      utter.voice = enVoices[voiceIndex % 2];
-      voiceIndex++;
-    }
-  }
-
-  utter.rate = 0.8;
-
-  speechSynthesis.speak(utter);
+  const audio = new Audio(`/audio/${text}.mp3`);
+  audio.play();
 };
 
   const handleClick = (qIndex, option) => {
