@@ -435,8 +435,8 @@ const speak = (text) => {
 
     <div>
       <span style={{ color: "blue", cursor: "pointer" }}
-        onClick={() => speak("avoid doing ~")}>
-        🔊 avoid doing ~
+        onClick={() => speak("avoid doing")}>
+        🔊 avoid doing
       </span> - ~하는 것을 피하다
     </div>
 
