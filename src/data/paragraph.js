@@ -43,7 +43,7 @@ export const paragraphData = [
     },
     {
       text: "Many students came and ______.",
-      answers: ["cheer"],
+      answers: ["cheered"],
       choices: ["anger", "admire", "cheered", "Even", "proud"]
     },
     {
