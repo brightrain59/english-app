@@ -155,7 +155,7 @@ exerciseBtn: {
 
   image: {
     width: "120px",
-    marginTop: "10px",
+    marginTop: "20px",
     marginBottom: "10px",
     borderRadius: "8px",
     boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
