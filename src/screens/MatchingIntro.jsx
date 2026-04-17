@@ -156,12 +156,14 @@ exerciseBtn: {
   image: {
     width: "120px",
     marginTop: "10px",
-    opacity: 0.9
+    marginBottom: "10px",
+    borderRadius: "8px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
   },
 
   startBtn: {
     height: "24px",
-    padding: "0 16px",
+    padding: "0 24px",
     borderRadius: "6px",
     border: "none",
     background: "linear-gradient(135deg, #ADEBB3, #32CD32)",
@@ -170,6 +172,7 @@ exerciseBtn: {
     cursor: "pointer",
     marginTop: "5px",
     position: "relative",
-    overflow: "hidden"
+    overflow: "hidden",
+    transition: "transform 0.1s ease"
   }
 };
