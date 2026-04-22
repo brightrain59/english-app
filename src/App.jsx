@@ -5,9 +5,10 @@ import WordsIntro from "./screens/WordsIntro";
 import WordsToLearn from "./screens/WordsToLearn";
 import ClassificationIntro from "./screens/ClassificationIntro";
 import WordClassification from "./screens/WordClassification";
+import AnalogyIntro from "./screens/AnalogyIntro";
+import WordAnalogy from "./screens/WordAnalogy";
 import MatchingIntro from "./screens/MatchingIntro";
 import ExpressionMatching from "./screens/ExpressionMatching";
-import WordAnalogy from "./screens/WordAnalogy";
 import ParagraphIntro from "./screens/ParagraphIntro";
 import Paragraph from "./screens/Paragraph";
 import { paragraphData } from "./data/paragraph";  // ⭐ 추가
@@ -263,6 +264,13 @@ export default function App() {
           unit={unit}
         />
       )}
+      
+      {screen === "AnalogyIntro" && (
+        <AnalogyIntro
+          goBack={() => setScreen("start")}
+          goNext={() => setScreen("analogy")}
+        />
+      )}
 
       {screen === "analogy" && (
         <WordAnalogy
@@ -273,6 +281,10 @@ export default function App() {
           score={score}
           xp={xp}
           level={level}
+          setAnalogyDone={setAnalogyDone}
+          progress={unitProgress}
+          saveProgress={saveProgress}
+          unit={unit}
         />
       )}
 
