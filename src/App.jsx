@@ -15,8 +15,9 @@ import { paragraphData } from "./data/paragraph";  // ⭐ 추가
 import { playLevelUp, vibrate } from "./utils/feedback";
 
 export default function App() {
-  const [unit, setUnit] = useState(1);
   const [screen, setScreen] = useState("home");
+  console.log("현재 screen:", screen);
+  const [unit, setUnit] = useState(1);
   const [score, setScore] = useState(0);
   const [xp, setXp] = useState(0);
   const [showLevelUp, setShowLevelUp] = useState(false);
