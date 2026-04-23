@@ -216,6 +216,7 @@ export default function App() {
           goHome={() => setScreen("home")}
           goWordsIntro={() => setScreen("wordsIntro")}
           goClassification={() => setScreen("classificationIntro")}
+          goAnalogy={() => setScreen("analogyIntro")}
           goMatching={() => setScreen("matchingIntro")}
           goParagraph={() => setScreen("paragraphIntro")}
           setWordsDone={setWordsDone}
@@ -270,7 +271,7 @@ export default function App() {
         />
       )}
       
-      {screen === "AnalogyIntro" && (
+      {screen === "analogyIntro" && (
         <AnalogyIntro
           goBack={() => setScreen("start")}
           goNext={() => setScreen("analogy")}

@@ -17,7 +17,7 @@ function playSound(name) {
 
   /* 💧 ripple */
 function createRipple(e) {
-  playSound("click");
+  playSound("click", unit);
   try {
   const button = e.currentTarget;
 
@@ -195,7 +195,7 @@ export default function ExpressionMatching ({
       addScore && addScore();
       addXP && addXP(10 + streak * 2);
 
-      playSound("correct");
+      playSound("correct", unit);
 
       // 🔊 음성 (idx 방식)
       const idx =
@@ -227,7 +227,7 @@ export default function ExpressionMatching ({
       const next = prev + 1;
       setBestStreak(b => Math.max(b, next));
       if (next === 5) {
-        playSound("combo");
+        playSound("combo", unit);
       }
       return next;
     });
@@ -235,7 +235,7 @@ export default function ExpressionMatching ({
     } else {
       // ❌ 오답
       setFeedback("😢 Try again!");
-      playSound("wrong");
+      playSound("wrong", unit);
 
       setShake(true);
 

@@ -151,7 +151,7 @@ const handleWordClick = (word) => {
   /* 🎯 채점 */
   const handleCheck = () => {
   if (isAllCorrect) {
-    playSound("correct");
+    playSound("correct", unit);
     setFeedback("🎉 Great!");
     setShowAnswer(true);
     setResult("correct");
@@ -163,7 +163,7 @@ const handleWordClick = (word) => {
 
     setStreak(prev => {
       const next = prev + 1;
-      if (next === 5) playSound("combo");
+      if (next === 5) playSound("combo", unit);
       return next;
     });
 
