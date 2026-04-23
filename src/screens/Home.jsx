@@ -84,7 +84,10 @@ export default function Home({ goUnit, unlockedUnits, progress }) {
             : "#ccc",
           animation: isComplete ? "shine 1s ease" : "none"
         }}
-        onClick={() => goUnit(u.id)}
+        onClick={() => {
+  console.log("클릭됨:", u.id);
+  goUnit(u.id);
+}}
         onMouseOver={(e) =>
           (e.currentTarget.style.transform = "scale(1.03)")
         }
