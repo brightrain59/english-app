@@ -11,7 +11,7 @@ function playClickSound() {
 }
 
 function playSound(name) {
-  const audio = new Audio(`/sounds/${name}.mp3`);
+  const audio = new Audio(`/audio/unit1/${name}.mp3`);
   audio.play().catch(() => {});
 }
 
@@ -104,7 +104,7 @@ export default function ExpressionMatching ({
   const playSentence = (rate = 1) => {
     if (currentAudioIndex === null) return;
     const audio = new Audio(
-      `/sounds/ex${safeExercise + 1}_${currentAudioIndex + 1}.mp3`
+      `/audio/unit1/ex${safeExercise + 1}_${currentAudioIndex + 1}.mp3`
     );
     audio.playbackRate = rate;
     audio.play();
@@ -207,7 +207,7 @@ export default function ExpressionMatching ({
 
       setTimeout(() => {
         const audio = new Audio(
-        `/sounds/ex${exercise + 1}_${idx + 1}.mp3`
+        `/audio/unit1/ex${exercise + 1}_${idx + 1}.mp3`
         );
         audio.play().catch(() => {});
       }, 150);

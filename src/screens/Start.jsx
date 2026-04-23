@@ -63,17 +63,19 @@ export default function Start({
 
   const [open, setOpen] = useState(false);
 
+  const unitData = wordsData[unit];
+  
   return (
     <div style={styles.container}>
       <TopBar title={`Unit ${unit}`} onBack={goHome} />
 
       <h2
         style={{ 
-            fontSize: "16px",
-            color: "white",
-            marginTop: "10px",
-            marginBottom: "10px" }}>
-        My Daily Life & Growth, Part I
+          fontSize: "16px",
+          color: "white",
+          marginTop: "10px",
+          marginBottom: "10px" }}>
+        {unitData.title}
       </h2>
 
       {/* Words to Learn */}
@@ -111,7 +113,7 @@ export default function Start({
         {/* ⭐ 단어 미리보기 */}
         {open && (
           <div style={styles.preview}>
-            {wordsData.slice(0, 5).map((w, i) => (
+            {unitData.words.slice(0, 5).map((w, i) => (
               <div key={i} style={styles.wordItem}>
                 {w.word}
               </div>
@@ -132,7 +134,7 @@ export default function Start({
                 setMatchingDone(false);
                 setParagraphDone(false);
                 setTimeout(() => {
-                  goWordsIntro();
+                  goWordsIntro(unit);
                 }, 120);
               }}>
               Start 🚀

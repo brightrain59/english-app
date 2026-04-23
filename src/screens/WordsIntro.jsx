@@ -1,4 +1,5 @@
 import TopBar from "../components/TopBar";
+import { wordsData } from "../data/words";
 
 function playClickSound() {
   const audio = new Audio("/sounds/click.mp3");
@@ -45,19 +46,35 @@ function createRipple(e) {
   }, 150);
 }
 
-export default function Words
-({ goBack, goNext }) {  
+export default function WordsIntro
+({ goBack, goNext, unit }) {  
+
+  const unitData = wordsData[unit];
+
   return (
     <div style={styles.container}>
       <TopBar 
-        title="📖 Words to Learn"
+        title={`📖 ${unitData.title}`}
         onBack={goBack} />
+
+      <p style={{ 
+        fontSize: "18px", 
+        marginTop: "10px",
+        fontWeight: "bold",
+        opacity: 0.9
+      }}>
+        Unit {unit}
+      </p>
 
       {/* 지시문 */}
       <p style={styles.instruction}>
         이번에 학습할 단어를 얼마나 알고 있나요?<br />
         단어의 발음과 의미를 알면 <b>‘I know’</b>,<br />
         모르면 <b>‘I don’t know’</b> 버튼을 클릭하세요.
+      </p>
+
+      <p style={{ fontSize: "13px", opacity: 0.9 }}>
+        {unitData.words.length} words
       </p>
 
       {/* 이미지 */}
@@ -78,7 +95,7 @@ export default function Words
         onClick={(e) => {
           createRipple(e);
           setTimeout(() => {
-            goNext();
+            goNext(unit);
           }, 120);
         }}>
           Start 🚀

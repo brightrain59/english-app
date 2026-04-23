@@ -62,7 +62,7 @@ export default function WordsToLearn({
   const [showMeaning, setShowMeaning] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
   const [showComplete, setShowComplete] = useState(false);
-  const words = wordsData;
+  const words = wordsData[unit];
   const handleKnow = () => {
     goNextWord();
   };
@@ -90,7 +90,7 @@ export default function WordsToLearn({
     }, 120);
   };
   const playAudio = (word) => {
-    const audio = new Audio(`/sounds/${word}.mp3`);
+    const audio = new Audio(`/audio/unit1/${word}.mp3`);
     audio.currentTime = 0;
     audio.play().catch(() => {});
   };
