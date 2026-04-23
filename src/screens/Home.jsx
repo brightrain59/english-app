@@ -96,7 +96,7 @@ export default function Home({ goUnit, unlockedUnits, progress }) {
             : "#ccc",
           animation: isComplete ? "shine 1s ease" : "none"
         }}
-        onClick={() => isUnlocked && goUnit(u.id)}
+        onClick={() => goUnit(u.id)}
         onMouseOver={(e) =>
           (e.currentTarget.style.transform = "scale(1.03)")
         }
