@@ -1,5 +1,5 @@
 export const wordsData = {
-  unit1: {
+  1: {
     title: "My Daily Life & Growth, Part I",
     words: [ 
       {
@@ -77,7 +77,7 @@ export const wordsData = {
     ]
   },
 
-  unit2: {
+  2: {
     title: "My Daily Life & Growth, Part II",
     words: [
       { 
