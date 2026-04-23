@@ -71,18 +71,6 @@ export default function Home({ goUnit, unlockedUnits, progress }) {
         (p.paragraph ? 1 : 0)) / 3 * 100
       );
       const isComplete = percent === 100;
-        <button
-          key={u.id}
-          style={{
-            ...styles.card,
-            background: isUnlocked
-              ? isComplete
-              ? "#dcfce7"   // ⭐ 연한 초록
-              : "white"
-              : "#ccc",
-            border: isComplete ? "2px solid #22c55e" : "none"  // ⭐ 강조
-          }}>
-        </button>
 
       return (
       <button
