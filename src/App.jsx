@@ -33,6 +33,7 @@ export default function App() {
   });
   const [wordsDone, setWordsDone] = useState(false);
   const [classificationDone, setClassificationDone] = useState(false);
+  const [analogyDone, setAnalogyDone] = useState(false);
   const [matchingDone, setMatchingDone] = useState(false);
   const [paragraphDone, setParagraphDone] = useState(false);
   const [completedUnits, setCompletedUnits] = useState([]);
