@@ -62,7 +62,7 @@ export default function Home({ goUnit, unlockedUnits, progress }) {
       </h2>
 
     {units.map((u) => {
-      const isUnlocked = unlockedUnits.includes(u.id);
+      const isUnlocked = true;
       const p = progress[u.id] || {};
 
       const percent = Math.floor(
