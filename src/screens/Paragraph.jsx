@@ -48,6 +48,7 @@ export default function Paragraph({
   unit,
   triggerFireworks,
   handleUnitComplete,
+  streak,
   setStreak
 }) {
   

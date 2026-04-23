@@ -353,6 +353,7 @@ export default function App() {
           unit={unit}
           triggerFireworks={triggerFireworks}
           handleUnitComplete={handleUnitComplete}
+          streak={streak}
           setStreak={setStreak}
         />
       )}
