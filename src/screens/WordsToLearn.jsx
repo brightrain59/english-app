@@ -90,7 +90,7 @@ export default function WordsToLearn({
     }, 120);
   };
   const playAudio = (word) => {
-    const audio = new Audio(`/audio/unit1/${word}.mp3`);
+    const audio = new Audio(`/audio/unit${unit}/${word}.mp3`);
     audio.currentTime = 0;
     audio.play().catch(() => {});
   };

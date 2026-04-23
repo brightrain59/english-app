@@ -227,7 +227,11 @@ export default function App() {
       {screen === "wordsIntro" && (
         <WordsIntro
           goBack={() => setScreen("start")}
-          goNext={() => setScreen("learn")}
+          goNext={(u) => {
+            setUnit(u);
+            setScreen("learn");
+          }}
+          unit={unit}
         />
       )}
 

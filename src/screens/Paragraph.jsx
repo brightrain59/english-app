@@ -4,7 +4,7 @@ import TopBar from "../components/TopBar";
 
 /* 🔊 사운드 */
 function playSound(name) {
-  const audio = new Audio(`/audio/unit1/${name}.mp3`);
+  const audio = new Audio(`/audio/unit${unit}/${name}.mp3`);
   audio.play().catch(() => {});
 }
 
