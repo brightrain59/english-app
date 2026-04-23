@@ -230,8 +230,8 @@ export default function App() {
       {screen === "wordsIntro" && (
         <WordsIntro
           goBack={() => setScreen("start")}
-          goNext={(u) => {
-            setUnit(u);
+          goNext={(unit) => {
+            setUnit(unit);
             setScreen("learn");
           }}
           unit={unit}
