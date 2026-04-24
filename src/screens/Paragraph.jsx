@@ -7,6 +7,7 @@ const sounds = {
   click: new Audio("/sounds/click.mp3"),
   correct: new Audio("/sounds/correct.mp3"),
   wrong: new Audio("/sounds/wrong.mp3"),
+  combo: new Audio("/sounds/combo.mp3"),
 };
 
 function playEffect(name) {

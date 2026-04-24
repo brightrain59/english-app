@@ -25,6 +25,21 @@ export const classificationData = [
       explanation: "pain: 고통은 응원하거나 춤추고 노래하는 행동과 관련이 없음"
     },
     {
+      words: ["avoid", "drive", "swim", "walk"],
+      answer: "avoid",
+      explanation: "avoid: 피하는 것은 이동하는 행동과 관련이 없음"
+    },
+    {
+      words: ["choice", "idea", "plan", "train"],
+      answer: "train",
+      explanation: "train: 기차는 형태가 없는 추상적인 것이 아님"
+    },
+    {
+      words: ["hear", "look", "see", "watch"],
+      answer: "hear",
+      explanation: "hear: 듣는 것은 보는 것과 관련이 없음"
+    },, , , 
+    {
       words: ["journey", "nature", "travel", "trip"],
       answer: "nature",
       explanation: "nature: 자연은 여행의 필수조건인 이동과 관련이 없음"

@@ -7,6 +7,7 @@ const sounds = {
   click: new Audio("/sounds/click.mp3"),
   correct: new Audio("/sounds/correct.mp3"),
   wrong: new Audio("/sounds/wrong.mp3"),
+  combo: new Audio("/sounds/combo.mp3")
 };
 
 function playEffect(name) {
@@ -14,6 +15,11 @@ function playEffect(name) {
   if (!audio) return;
 
   audio.currentTime = 0;
+  audio.play().catch(() => {});
+}
+
+function playVoice(unit, file) {
+  const audio = new Audio(`/audio/unit${unit}/${file}`);
   audio.play().catch(() => {});
 }
 
@@ -63,12 +69,15 @@ export default function WordAnalogy({
   setAnalogyDone,
   progress,
   saveProgress,
-  unit
+  unit,
+  streak,
+  setStreak
 }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [wrong, setWrong] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
   const [showComplete, setShowComplete] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [shake, setShake] = useState(false);
 
   const unitData = analogyData[unit];
 
@@ -92,14 +101,33 @@ const current = questions[currentIndex];
   // ✅ 정답 체크
   const checkAnswer = (choice) => {
     if (choice === current.answer) {
-      playEffect("correct");
+      setStreak(prev => {
+        const next = prev + 1;
+
+        // 🔥 콤보 사운드
+        if (next >= 5) {
+          playEffect("combo");
+        } else {
+          playEffect("correct");
+        }
+
+      return next;
+      });
+
       setWrong(false);
       setShowAnswer(true);
+
+      // ⭐ XP 보너스 (콤보 반영)
+      const bonusXP = 10 + streak * 2;
+      addXP && addXP(bonusXP);
       addScore && addScore();
-      addXP && addXP();
+
     } else {
       playEffect("wrong");
       setWrong(true);
+      setStreak(0);
+
+      setTimeout(() => setShake(false), 400);
     }
   };
 
@@ -143,7 +171,10 @@ const current = questions[currentIndex];
       <h2 style={{ marginTop: "30px" }}>{current.question}</h2>
 
       {/* 선택지 */}
-      <div style={styles.group}>
+      <div style={{
+        ...styles.group,
+        animation: shake ? "shake 0.3s" : "none"
+      }}>
         {current.choices.map((choice, i) => (
           <button
             key={i}
@@ -174,6 +205,7 @@ const current = questions[currentIndex];
               createRipple(e);
 
               if (currentIndex === questions.length - 1) {
+                playEffect("levelup");
                 setAnalogyDone(true);
                 saveProgress(unit, "analogy");
                 setShowComplete(true);

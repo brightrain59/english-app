@@ -1,6 +1,6 @@
 export const wordsData = {
   1: {
-    title: "Unit 1. My Daily Life & Growth, Pt I",
+    title: "Unit 1. My Daily Life & Growth, I",
     words: [ 
       {
         word: "accent", 
@@ -78,7 +78,7 @@ export const wordsData = {
   },
 
   2: {
-    title: "Unit 2. My Daily Life & Growth, Pt II",
+    title: "Unit 2. My Daily Life & Growth, II",
     words: [
       { 
         word: "accident",

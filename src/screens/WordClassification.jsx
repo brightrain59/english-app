@@ -3,10 +3,23 @@ import TopBar from "../components/TopBar";
 import { wordsData } from "../data/words";
 import { classificationData } from "../data/classification";
 
-const SOUND_ON = true;
+const sounds = {
+  click: new Audio("/sounds/click.mp3"),
+  correct: new Audio("/sounds/correct.mp3"),
+  wrong: new Audio("/sounds/wrong.mp3"),
+  combo: new Audio("/sounds/combo.mp3")
+};
+
 function playEffect(name) {
-  if (!SOUND_ON) return;
-  const audio = new Audio(`/sounds/${name}.mp3`);
+  const audio = sounds[name];
+  if (!audio) return;
+
+  audio.currentTime = 0;
+  audio.play().catch(() => {});
+}
+
+function playVoice(unit, file) {
+  const audio = new Audio(`/audio/unit${unit}/${file}`);
   audio.play().catch(() => {});
 }
 

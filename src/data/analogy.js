@@ -1,6 +1,6 @@
 export const analogyData = {
   2: {
-    title: "Unit 2. My Daily Life & Growth, Pt II",
+    title: "Unit 2. My Daily Life & Growth, II",
     questions: [ 
     {
       question: "illness : pain = accident : ?",

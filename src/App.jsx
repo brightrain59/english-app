@@ -310,6 +310,8 @@ export default function App() {
           progress={unitProgress}
           saveProgress={saveProgress}
           unit={unit}
+          streak={streak}
+          setStreak={setStreak}
         />
       )}
 
@@ -456,7 +458,7 @@ export default function App() {
         </div>
       )}
 
-      {streak > 1 && (
+      {streak >= 2 && (
         <div style={styles.streak}>
           🔥 {streak} Combo!
         </div>
