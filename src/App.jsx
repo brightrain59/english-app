@@ -253,6 +253,7 @@ export default function App() {
         <ClassificationIntro
           goBack={() => setScreen("start")}
           goNext={() => setScreen("classification")}
+          unit={unit}
         />
       )}
 
@@ -302,6 +303,7 @@ export default function App() {
           setExercise(ex);          // 🔥 핵심
           setScreen("matching");
         }}
+        unit={unit}
         />
       )}
 
@@ -337,6 +339,7 @@ export default function App() {
             setExercise(ex);
             setScreen("paragraph");
           }}
+          unit={unit}
         />
       )}
 

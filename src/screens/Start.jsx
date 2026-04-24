@@ -2,16 +2,16 @@ import TopBar from "../components/TopBar";
 import { useState } from "react";
 import { wordsData } from "../data/words";
 
-function playClickSound() {
-  const audio = new Audio("/sounds/click.mp3");
+function playEffect(name) {
+  const audio = new Audio(`/sounds/${name}.mp3`);
   audio.play().catch(() => {});
 }
 
 function createRipple(e) {
   const button = e.currentTarget;
 
-    // ⭐ 사운드 먼저 실행 (핵심)
-  playClickSound();
+  // ⭐ 사운드 먼저 실행 (핵심)
+  playEffect("click")
 
   const circle = document.createElement("span");
   const diameter = Math.max(button.clientWidth, button.clientHeight);
@@ -67,15 +67,15 @@ export default function Start({
   
   return (
     <div style={styles.container}>
-      <TopBar title={`Unit ${unit}`} onBack={goHome} />
+      <TopBar title={unitData.title} onBack={goHome} />
 
       <h2
         style={{ 
-          fontSize: "16px",
+          fontSize: "18px",
           color: "white",
-          marginTop: "10px",
+          marginTop: "30px",
           marginBottom: "10px" }}>
-        {unitData.title}
+        Table of Contents
       </h2>
 
       {/* Words to Learn */}
@@ -233,7 +233,7 @@ const styles = {
     padding: "0 12px",
     borderRadius: "10px",
     border: "none",
-    fontSize: "14px",
+    fontSize: "16px",
     fontWeight: "500",
     cursor: "pointer",
     background: "#ffffff",
@@ -261,7 +261,7 @@ const styles = {
     padding: "0 12px",
     borderRadius: "10px",
     border: "none",
-    fontSize: "14px",
+    fontSize: "16px",
     fontWeight: "500",
     cursor: "pointer",
     background: "#ffffff",
@@ -279,7 +279,7 @@ const styles = {
     border: "none",
     background: "linear-gradient(135deg, #ADEBB3, #32CD32)",
     color: "black",
-    fontSize: "12px",
+    fontSize: "14px",
     cursor: "pointer",
     marginTop: "10px",
     position: "relative",

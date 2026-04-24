@@ -1,15 +1,5 @@
-export const playCorrect = () => {
-  const audio = new Audio("/sounds/correct.mp3");
-  audio.play();
-};
-
 export const playLevelUp = () => {
   const audio = new Audio("/sounds/levelup.mp3");
-  audio.play();
-};
-
-export const playWrong = () => {
-  const audio = new Audio("/sounds/wrong.mp3");
   audio.play();
 };
 

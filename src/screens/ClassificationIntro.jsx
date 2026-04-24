@@ -1,15 +1,17 @@
 import TopBar from "../components/TopBar";
+import { wordsData } from "../data/words";
+import { classificationData } from "../data/classification";
 
-function playClickSound() {
-  const audio = new Audio("/sounds/click.mp3");
+function playEffect(name) {
+  const audio = new Audio(`/sounds/${name}.mp3`);
   audio.play().catch(() => {});
 }
 
 function createRipple(e) {
   const button = e.currentTarget;
 
-    // ⭐ 사운드 먼저 실행 (핵심)
-  playClickSound();
+  // ⭐ 사운드 먼저 실행 (핵심)
+  playEffect("click");
 
   const circle = document.createElement("span");
   const diameter = Math.max(button.clientWidth, button.clientHeight);
@@ -46,12 +48,26 @@ function createRipple(e) {
 }
 
 export default function ClassificationIntro
-({ goBack, goNext }) {  
+({ goBack, goNext, unit }) {
+
+  const unitData = wordsData[unit];
+
   return (
     <div style={styles.container}>
       <TopBar 
-        title={"🧠 Word Classification"}
+        title={unitData.title}
         onBack={goBack} />
+
+      <h2
+        style={{ 
+          fontSize: "18px",
+          fontWeight: "500",
+          color: "white",
+          marginTop: "30px",
+          marginBottom: "10px",
+          opacity: 0.9 }}>
+        🧠 Word Classification
+      </h2>
 
       {/* 지시문 */}
       <p style={styles.instruction}>
@@ -105,10 +121,10 @@ const styles = {
   },
 
   instruction: {
-    color: "white",
+    color: "#333",
     fontSize: "14px",
     lineHeight: "1.6",
-    marginTop: "40px",
+    marginTop: "20px",
     marginBottom: "10px"
   },
 
@@ -129,7 +145,7 @@ const styles = {
     color: "black",
     fontSize: "12px",
     cursor: "pointer",
-    marginTop: "5px",
+    marginTop: "10px",
     position: "relative",
     overflow: "hidden",
     transition: "transform 0.1s ease"

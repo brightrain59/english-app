@@ -1,10 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
+import { wordsData } from "../data/words";
 import { paragraphData } from "../data/paragraph";
 import TopBar from "../components/TopBar";
 
-/* 🔊 사운드 */
-function playSound(name) {
-  const audio = new Audio(`/audio/unit${unit}/${name}.mp3`);
+/* 🔊 효과음 */
+function playEffect(name) {
+  const audio = new Audio(`/sounds/${name}.mp3`);
+  audio.play().catch(() => {});
+}
+
+/* 🔊 학습 음성 */
+function playVoice(unit, file) {
+  const audio = new Audio(`/audio/unit${unit}/${file}`);
   audio.play().catch(() => {});
 }
 
@@ -83,7 +90,7 @@ export default function Paragraph({
 
   const audioRef = useRef(null);
     useEffect(() => {
-      audioRef.current = new Audio(`/audio/paragraph/ex${exercise + 1}.mp3`);
+      audioRef.current = new Audio(`/audio/unit${unit}/paragraph/ex${exercise + 1}.mp3`);
   }, [exercise]);
 
   const [feedback, setFeedback] = useState("");
@@ -151,7 +158,7 @@ const handleWordClick = (word) => {
   /* 🎯 채점 */
   const handleCheck = () => {
   if (isAllCorrect) {
-    playSound("correct", unit);
+    playEffect("correct");
     setFeedback("🎉 Great!");
     setShowAnswer(true);
     setResult("correct");
@@ -163,12 +170,12 @@ const handleWordClick = (word) => {
 
     setStreak(prev => {
       const next = prev + 1;
-      if (next === 5) playSound("combo", unit);
+      if (next === 5) playEffect("combo");
       return next;
     });
 
   } else {
-    playWrongSound("wrong");
+    playEffect("wrong");
     setFeedback("😢 Check the highlighted blanks!");
     setShake(true);
     setWrong(true);
@@ -178,11 +185,6 @@ const handleWordClick = (word) => {
     setTimeout(() => setShake(false), 500);
   }
 };
-
-  const playWrongSound = () => {
-    const audio = new Audio("/sounds/wrong.mp3");
-    audio.play();
-  };
 
   /* 🎯 다음 */
   const handleNext = () => {
@@ -228,15 +230,21 @@ const handleWordClick = (word) => {
   audio.play();
 };
 
-const handleSlow = () => {
-  const audio = audioRef.current;
-  if (!audio) return;
+  const handleSlow = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
 
-  audio.pause();
-  audio.currentTime = 0;
-  audio.playbackRate = 0.8;
-  audio.play();
-};
+    audio.pause();
+    audio.currentTime = 0;
+    audio.playbackRate = 0.8;
+    audio.play();
+  };
+  
+  const unitData = wordsData[unit];
+  if (!unitData) {
+  return <div>Loading...</div>;
+  }
+  const words = unitData.words;
 
   return (
     <div style={styles.container}>
@@ -251,12 +259,23 @@ const handleSlow = () => {
         />
       </div>
       <TopBar
-        title={"📝 Words in a Paragraph"}
+        title={unitData.title}
         onBack={goBack}
         level={level}
         xp={xp}
         progress={progress}
       />
+
+      <h2
+        style={{ 
+          fontSize: "18px",
+          fontWeight: "500",
+          color: "white",
+          marginTop: "30px",
+          marginBottom: "10px",
+          opacity: 0.9 }}>
+        📝 Words in a Paragraph
+      </h2>
 
       <div style={styles.subtitle}>
         {currentSet.title}
@@ -264,17 +283,16 @@ const handleSlow = () => {
 
       {/* 🔥 단락 전체 */}
       <div style={styles.paragraph}>
-  {currentSet.sentences.map((s, sIdx) => {
-    const parts = s.text.split(/_{3,}/);
-console.log("wrong:", wrong);
-    return (
-      <span key={sIdx}>
-        {parts.map((part, i) => {
-          const word = answers[sIdx]?.[i];
-          const isCorrect =
-            s.answers?.[i] === word;
+        {currentSet.sentences.map((s, sIdx) => {
+          const parts = s.text.split(/_{3,}/);
+            return (
+              <span key={sIdx}>
+                {parts.map((part, i) => {
+                  const word = answers[sIdx]?.[i];
+                  const isCorrect =
+                  s.answers?.[i] === word;
 
-          return (
+            return (
             <React.Fragment key={i}>
               {part}
 
@@ -329,7 +347,9 @@ console.log("wrong:", wrong);
               ...styles.choiceBtn,
               ...(shake ? styles.shake : {})
             }}
-            onClick={(e) => handleClick(word, e)}
+            onClick={(e) => {
+              playEffect("click");
+              handleClick(word, e)}}
           >
             {word}
           </button>
@@ -403,18 +423,18 @@ const styles = {
 
   progressBar: {
     width: "100%",
-    height: "10px",
+    height: "8px",
+    marginBottom: "10px",
     background: "#e5e7eb",
     borderRadius: "10px",
     overflow: "hidden"
   },
   
   subtitle: {
-    fontSize: "18px",
+    fontSize: "16px",
     fontWeight: "600",
     lineHeight: "1.8",
-    marginTop: "12px",
-    marginBottom: "6px",
+    marginTop: "10px",
     color: "#333"
   },
 

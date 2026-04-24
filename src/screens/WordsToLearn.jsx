@@ -2,10 +2,15 @@ import { useState } from "react";
 import TopBar from "../components/TopBar";
 import { wordsData } from "../data/words";
 
-const SOUND_ON = false;
-function playClickSound() {
+const SOUND_ON = true;
+function playEffect(name) {
   if (!SOUND_ON) return;
-  const audio = new Audio("/sounds/click.mp3");
+  const audio = new Audio(`/sounds/${name}.mp3`);
+  audio.play().catch(() => {});
+}
+
+function playVoice(unit, file) {
+  const audio = new Audio(`/audio/unit${unit}/${file}`);
   audio.play().catch(() => {});
 }
 
@@ -13,7 +18,7 @@ function createRipple(e) {
   const button = e.currentTarget;
 
   // ⭐ 사운드 먼저 실행 (핵심)
-  playClickSound();
+  playEffect("click");
 
   const circle = document.createElement("span");
   const diameter = Math.max(button.clientWidth, button.clientHeight);
@@ -62,7 +67,8 @@ export default function WordsToLearn({
   const [showMeaning, setShowMeaning] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
   const [showComplete, setShowComplete] = useState(false);
-  const words = wordsData[unit];
+  const unitData = wordsData[unit];
+  const words = unitData.words;
   const handleKnow = () => {
     goNextWord();
   };
@@ -89,7 +95,7 @@ export default function WordsToLearn({
       if (callback) callback();
     }, 120);
   };
-  const playAudio = (word) => {
+  const playVoice = (word) => {
     const audio = new Audio(`/audio/unit${unit}/${word}.mp3`);
     audio.currentTime = 0;
     audio.play().catch(() => {});
@@ -97,21 +103,33 @@ export default function WordsToLearn({
 
 return (
   <>
-    <div style={styles.progressBar}>
-      <div
-        style={{
-          width: `${progress}%`,  // ⭐ 여기
-          height: "100%",
-          background: "#22c55e",
-          transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)" // ⭐ 여기
-        }}
-      />
-    </div>
     <div style={styles.container}>
+      <div style={styles.progressBar}>
+        <div
+          style={{
+            width: `${progress}%`,  // ⭐ 여기
+            height: "100%",
+            background: "#22c55e",
+            transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)" // ⭐ 여기
+          }}
+        />
+      </div>
+
       <TopBar 
-        title="📖 Words to Learn"
+        title={unitData.title}
         progress={progress}
         onBack={goBack} />
+
+      <h2
+        style={{ 
+          fontSize: "18px",
+          fontWeight: "500",
+          color: "white",
+          marginTop: "30px",
+          marginBottom: "10px",
+          opacity: 0.9 }}>
+        📖 Words to Learn
+      </h2>
 
       <div style={styles.card}>
         {index < words.length ? words[index].word : "Preview Done!"}
@@ -160,7 +178,7 @@ return (
                 e.currentTarget.style.transform = "scale(1)";
               }}
               onClick={(e) =>
-                handleClickEffect(e, () => playAudio(words[index].word))
+                handleClickEffect(e, () => playVoice(words[index].word))
               }>
               🔊 Listen
             </button>
@@ -240,23 +258,23 @@ const styles = {
 
   progressBar: {
     width: "100%",
-    height: "10px",
+    height: "8px",
     background: "#e5e7eb",
     borderRadius: "10px",
     overflow: "hidden"
   },
 
   card: {
-    width: "200px",
-    height: "60px",
+    width: "150px",
+    height: "50px",
     borderRadius: "8px",
     background: "#eee",
     color: "black",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: "20px", //
-    marginTop: "40px"
+    fontSize: "18px", //
+    marginTop: "30px"
   },
 
   knowBtn: {

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import TopBar from "../components/TopBar";
-import { matchingData } from "../data/matching";
+import { wordsData } from "../data/words";
+import { paragraphData } from "../data/paragraph";
 
 function playClickSound() {
   const audio = new Audio("/sounds/click.mp3");
@@ -47,15 +48,32 @@ function createRipple(e) {
   }, 150);
 }
 
-export default function ParagraphIntro({ goBack, goNext }) {
+export default function ParagraphIntro({ goBack, goNext, unit }) {
   const [selectedExercise, setSelectedExercise] = useState(0);
+  
+  const unitData = wordsData[unit];
+  if (!unitData) {
+  return <div>Loading...</div>;
+  }
+  const words = unitData.words;
 
   return (
       <div style={styles.container}>
         <TopBar 
-          title={"📝 Words in a Paragraph"}
+          title={unitData.title}
           onBack={goBack} />
-  
+
+      <h2
+        style={{ 
+          fontSize: "18px",
+          fontWeight: "500",
+          color: "white",
+          marginTop: "30px",
+          marginBottom: "10px",
+          opacity: 0.9 }}>
+        📝 Words in a Paragraph
+      </h2>
+
         {/* 지시문 */}
         <p style={styles.instruction}>
         이제 글에서 단어를 연습하세요. 빈칸에<br />
@@ -125,10 +143,10 @@ const styles = {
   },
 
   instruction: {
-    color: "white",
+    color: "#333",
     fontSize: "14px",
     lineHeight: "1.6",
-    marginTop: "40px",
+    marginTop: "20px",
     marginBottom: "10px"
   },
 

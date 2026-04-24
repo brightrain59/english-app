@@ -1,16 +1,16 @@
 import TopBar from "../components/TopBar";
 import { wordsData } from "../data/words";
 
-function playClickSound() {
-  const audio = new Audio("/sounds/click.mp3");
+function playEffect(name) {
+  const audio = new Audio(`/sounds/${name}.mp3`);
   audio.play().catch(() => {});
 }
 
 function createRipple(e) {
   const button = e.currentTarget;
 
-    // ⭐ 사운드 먼저 실행 (핵심)
-  playClickSound();
+  // ⭐ 사운드 먼저 실행 (핵심)
+  playEffect("click")
 
   const circle = document.createElement("span");
   const diameter = Math.max(button.clientWidth, button.clientHeight);
@@ -48,23 +48,29 @@ function createRipple(e) {
 
 export default function WordsIntro
 ({ goBack, goNext, unit }) {  
-
+  
   const unitData = wordsData[unit];
+  if (!unitData) {
+  return <div>Loading...</div>;
+  }
+  const words = unitData.words;
 
   return (
     <div style={styles.container}>
       <TopBar 
-        title={`📖 ${unitData.title}`}
+        title={unitData.title}
         onBack={goBack} />
 
-      <p style={{ 
-        fontSize: "18px", 
-        marginTop: "10px",
-        fontWeight: "bold",
-        opacity: 0.9
-      }}>
-        Unit {unit}
-      </p>
+      <h2
+        style={{ 
+          fontSize: "18px",
+          fontWeight: "500",
+          color: "white",
+          marginTop: "30px",
+          marginBottom: "10px",
+          opacity: 0.9 }}>
+        📖 Words to Learn
+      </h2>
 
       {/* 지시문 */}
       <p style={styles.instruction}>
@@ -73,7 +79,7 @@ export default function WordsIntro
         모르면 <b>‘I don’t know’</b> 버튼을 클릭하세요.
       </p>
 
-      <p style={{ fontSize: "13px", opacity: 0.9 }}>
+      <p style={{ fontSize: "14px", opacity: 0.9 }}>
         {unitData.words.length} words
       </p>
 
@@ -116,7 +122,7 @@ const styles = {
   },
 
   instruction: {
-    color: "white",
+    color: "#333",
     fontSize: "14px",
     lineHeight: "1.6",
     marginTop: "20px",
@@ -138,9 +144,9 @@ const styles = {
     border: "none",
     background: "linear-gradient(135deg, #ADEBB3, #32CD32)",
     color: "black",
-    fontSize: "12px",
+    fontSize: "14px",
     cursor: "pointer",
-    marginTop: "5px",
+    marginTop: "10px",
     position: "relative",
     overflow: "hidden",
     transition: "transform 0.1s ease"

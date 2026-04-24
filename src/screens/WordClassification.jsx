@@ -1,18 +1,21 @@
 import { useState } from "react";
 import TopBar from "../components/TopBar";
+import { wordsData } from "../data/words";
 import { classificationData } from "../data/classification";
 
-const SOUND_ON = false;
-function playClickSound() {
+const SOUND_ON = true;
+function playEffect(name) {
   if (!SOUND_ON) return;
-  const audio = new Audio("/sounds/click.mp3");
+  const audio = new Audio(`/sounds/${name}.mp3`);
   audio.play().catch(() => {});
 }
 
 function createRipple(e) {
   try {
     const button = e.currentTarget;
-    playClickSound();
+    // ⭐ 사운드 먼저 실행 (핵심)
+    playEffect("click");
+    
     const circle = document.createElement("span");
     const diameter = Math.max(button.clientWidth, button.clientHeight);
     const radius = diameter / 2;
@@ -57,32 +60,47 @@ export default function WordClassification({
   const [showComplete, setShowComplete] = useState(false);
   const questions = classificationData;
 
-
-
   const current = questions[step];
     if (!current || !current.words.includes(current.answer)) {
     return <div>Data Error ⚠️</div>;
     }
 
+  const unitData = wordsData[unit];
+    if (!unitData) {
+    return <div>Loading...</div>;
+    }
+    const words = unitData.words;
+
   return (
     <div style={styles.container}>
-        <div style={styles.progressBar}>
-          <div
-            style={{
-              width: `${progress}%`,  // ⭐ 여기
-              height: "100%",
-              background: "#22c55e",
-              transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)" // ⭐ 여기
-            }}
-          />
+      <div style={styles.progressBar}>
+        <div
+          style={{
+            width: `${progress}%`,  // ⭐ 여기
+            height: "100%",
+            background: "#22c55e",
+            transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)" // ⭐ 여기
+          }}
+        />
       </div>
       <TopBar
-        title="🧠 Word Classification"
+        title={unitData.title}
         progress={progress}
         score={score}
         level={level}
         onBack={goBack}
       />
+
+      <h2
+        style={{ 
+          fontSize: "18px",
+          fontWeight: "500",
+          color: "white",
+          marginTop: "30px",
+          marginBottom: "10px",
+          opacity: 0.9 }}>
+        🧠 Word Classification
+      </h2>
 
       {/* 진행 표시 */}
       <p style={styles.progressText}>
@@ -114,12 +132,14 @@ export default function WordClassification({
                 if (selected === current.answer) return;
                 setSelected(w);
                 if (w === current.answer) {
-                addScore && addScore();
-                addXP && addXP(); }
+                  playEffect("correct");
+                  addScore && addScore();
+                  addXP && addXP(); }
                 if (w !== current.answer) {
-                setTimeout(() => {
-                  setSelected(null);
-                }, 600);
+                  playEffect("wrong");
+                  setTimeout(() => {
+                    setSelected(null);
+                  }, 600);
                 }
                 createRipple(e); }} >
                 {w}
@@ -250,7 +270,8 @@ const styles = {
 
   progressBar: {
     width: "100%",
-    height: "10px",
+    height: "8px",
+    marginBottom: "10px",
     background: "#e5e7eb",
     borderRadius: "10px",
     overflow: "hidden"
@@ -258,7 +279,7 @@ const styles = {
 
   progressText: {
     marginTop: "10px",
-    fontSize: "12px"
+    fontSize: "14px"
   },
 
   group: {
@@ -275,6 +296,7 @@ const styles = {
     border: "none",
     cursor: "pointer",
     transition: "all 0.15s ease",
+    fontSize: "14px",
     color: "black",
     position: "relative",
     overflow: "hidden"
@@ -315,7 +337,7 @@ const styles = {
   },
 
   explanation: {
-    fontSize: "13px",
+    fontSize: "14px",
     marginBottom: "10px"
   },
 

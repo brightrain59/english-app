@@ -1,25 +1,28 @@
 import { useState, useRef, useEffect } from "react";
+import { wordsData } from "../data/words";
 import { matchingData } from "../data/matching";
 import TopBar from "../components/TopBar";
 
-/* 🔊 사운드 */
-const SOUND_ON = false;
-function playClickSound() {
+/* 🔊 효과음 */
+const SOUND_ON = true;
+function playEffect(name) {
   if (!SOUND_ON) return;
-  const audio = new Audio("/sounds/click.mp3");
+  const audio = new Audio(`/sounds/${name}.mp3`);
   audio.play().catch(() => {});
 }
 
-function playSound(name) {
-  const audio = new Audio(`/audio/unit${unit}/${name}.mp3`);
+/* 🔊 학습 음성 */
+function playVoice(unit, file) {
+  const audio = new Audio(`/audio/unit${unit}/${file}`);
   audio.play().catch(() => {});
 }
 
-  /* 💧 ripple */
+/* 💧 ripple */
 function createRipple(e) {
-  playSound("click", unit);
   try {
   const button = e.currentTarget;
+  // ⭐ 사운드 먼저 실행 (핵심)
+  playEffect("click");
 
   const circle = document.createElement("span");
   const diameter = Math.max(button.clientWidth, button.clientHeight);
@@ -195,7 +198,7 @@ export default function ExpressionMatching ({
       addScore && addScore();
       addXP && addXP(10 + streak * 2);
 
-      playSound("correct", unit);
+      playEffect("correct");
 
       // 🔊 음성 (idx 방식)
       const idx =
@@ -227,7 +230,7 @@ export default function ExpressionMatching ({
       const next = prev + 1;
       setBestStreak(b => Math.max(b, next));
       if (next === 5) {
-        playSound("combo", unit);
+        playEffect("combo");
       }
       return next;
     });
@@ -235,7 +238,7 @@ export default function ExpressionMatching ({
     } else {
       // ❌ 오답
       setFeedback("😢 Try again!");
-      playSound("wrong", unit);
+      playEffect("wrong");
 
       setShake(true);
 
@@ -258,6 +261,12 @@ export default function ExpressionMatching ({
   };
 
   const answers = currentSet.answers;
+  
+  const unitData = wordsData[unit];
+  if (!unitData) {
+  return <div>Loading...</div>;
+  }
+  const words = unitData.words;
 
   return (
     <div style={{ ...styles.container }}>
@@ -273,7 +282,7 @@ export default function ExpressionMatching ({
       </div>
 
       <TopBar
-        title="🔗 Expression Matching"
+        title={unitData.title}
         progress={progress}
         onBack={goBack}
         score={score}
@@ -297,7 +306,7 @@ export default function ExpressionMatching ({
       ))}
     </div>
     
-    <h2 style={styles.subtitle}>Exercise {safeExercise + 1}</h2>
+    <h2 style={styles.subtitle}>🔗 Expression Matching, Exercise {safeExercise + 1}</h2>
 
     <div style={styles.container}>
       <div style={styles.columnsWrapper} ref={containerRef}>
@@ -534,7 +543,8 @@ const styles = {
 
   progressBar: {
     width: "100%",
-    height: "10px",
+    height: "8px",
+    marginBottom: "10px",
     background: "#e5e7eb",
     borderRadius: "10px",
     overflow: "hidden"
@@ -575,11 +585,11 @@ const styles = {
 
   subtitle: {
     fontSize: "18px",
-    fontWeight: "600",
+    fontWeight: "500",
+    color: "white",
     lineHeight: "1.8",
-    marginTop: "12px",
-    marginBottom: "0px",
-    color: "#333"
+    marginTop: "30px",
+    marginBottom: "0px"
   },
 
   card: {
@@ -597,7 +607,7 @@ const styles = {
   columns: {
     display: "flex",
     gap: "20px",
-    marginTop: "15px"
+    marginTop: "10px"
   },
 
   column: {
@@ -628,12 +638,12 @@ const styles = {
   },
 
   answerKo: {
-    fontSize: "12px"
+    fontSize: "13px"
   },
 
   tip: {
     color: "black",
-    fontSize: "12px"
+    fontSize: "13px"
   },
 
   btnRow: {

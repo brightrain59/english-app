@@ -1,17 +1,18 @@
 import { useState } from "react";
 import TopBar from "../components/TopBar";
+import { wordsData } from "../data/words";
 import { matchingData } from "../data/matching";
 
-function playClickSound() {
-  const audio = new Audio("/sounds/click.mp3");
+function playEffect(name) {
+  const audio = new Audio(`/sounds/${name}.mp3`);
   audio.play().catch(() => {});
 }
 
 function createRipple(e) {
   const button = e.currentTarget;
 
-    // ⭐ 사운드 먼저 실행 (핵심)
-  playClickSound();
+  // ⭐ 사운드 먼저 실행 (핵심)
+  playEffect("click");
 
   const circle = document.createElement("span");
   const diameter = Math.max(button.clientWidth, button.clientHeight);
@@ -47,15 +48,32 @@ function createRipple(e) {
   }, 150);
 }
 
-export default function MatchingIntro({ goBack, goNext }) {
+export default function MatchingIntro({ goBack, goNext, unit }) {  
 
   const [selectedExercise, setSelectedExercise] = useState(0);
   
+  const unitData = wordsData[unit];
+  if (!unitData) {
+  return <div>Loading...</div>;
+  }
+  const words = unitData.words;
+
   return (
     <div style={styles.container}>
       <TopBar 
-        title={"🔗 Expression Matching"}
+        title={unitData.title}
         onBack={goBack} />
+
+      <h2
+        style={{ 
+          fontSize: "18px",
+          fontWeight: "500",
+          color: "white",
+          marginTop: "30px",
+          marginBottom: "10px",
+          opacity: 0.9 }}>
+        🔗 Expression Matching
+      </h2>
 
       {/* 지시문 */}
       <p style={styles.instruction}>
@@ -126,10 +144,10 @@ const styles = {
   },
 
   instruction: {
-    color: "white",
+    color: "#333",
     fontSize: "14px",
     lineHeight: "1.6",
-    marginTop: "40px",
+    marginTop: "20px",
     marginBottom: "10px"
   },
 
@@ -168,9 +186,9 @@ exerciseBtn: {
     border: "none",
     background: "linear-gradient(135deg, #ADEBB3, #32CD32)",
     color: "black",
-    fontSize: "12px",
+    fontSize: "14px",
     cursor: "pointer",
-    marginTop: "5px",
+    marginTop: "10px",
     position: "relative",
     overflow: "hidden",
     transition: "transform 0.1s ease"
