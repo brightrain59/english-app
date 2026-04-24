@@ -4,10 +4,17 @@ import { matchingData } from "../data/matching";
 import TopBar from "../components/TopBar";
 
 /* 🔊 효과음 */
-const SOUND_ON = true;
+const sounds = {
+  click: new Audio("/sounds/click.mp3"),
+  correct: new Audio("/sounds/correct.mp3"),
+  wrong: new Audio("/sounds/wrong.mp3"),
+};
+
 function playEffect(name) {
-  if (!SOUND_ON) return;
-  const audio = new Audio(`/sounds/${name}.mp3`);
+  const audio = sounds[name];
+  if (!audio) return;
+
+  audio.currentTime = 0;
   audio.play().catch(() => {});
 }
 

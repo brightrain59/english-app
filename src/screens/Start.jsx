@@ -2,8 +2,17 @@ import TopBar from "../components/TopBar";
 import { useState } from "react";
 import { wordsData } from "../data/words";
 
+const sounds = {
+  click: new Audio("/sounds/click.mp3"),
+  correct: new Audio("/sounds/correct.mp3"),
+  wrong: new Audio("/sounds/wrong.mp3"),
+};
+
 function playEffect(name) {
-  const audio = new Audio(`/sounds/${name}.mp3`);
+  const audio = sounds[name];
+  if (!audio) return;
+
+  audio.currentTime = 0;
   audio.play().catch(() => {});
 }
 
@@ -51,6 +60,7 @@ export default function Start({
   goHome,
   goWordsIntro,
   goClassification,
+  goAnalogy,
   goMatching,
   goParagraph,
   unit,
@@ -64,6 +74,15 @@ export default function Start({
   const [open, setOpen] = useState(false);
 
   const unitData = wordsData[unit];
+
+  const activityMap = {
+    1: "Word Classification",
+    2: "Word Analogy",
+    3: "Word Classification",
+    4: "Word Analogy",
+  };
+
+  const activityName = activityMap[unit] || "Word Classification";
   
   return (
     <div style={styles.container}>
@@ -145,10 +164,10 @@ export default function Start({
         <MenuButton
           text={
             progress?.[unit]?.classification
-              ? "✅ Word Classification"
-              : "🧠 Word Classification"
+              ? `✅ ${activityName}`
+              : `🧠 ${activityName}`
           }
-          onClick={goClassification} >
+          onClick={unit === 1 ? goClassification : goAnalogy}>
           <span style={styles.arrow}>❯</span>
         </MenuButton>
         <MenuButton

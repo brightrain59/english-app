@@ -1,8 +1,17 @@
 import TopBar from "../components/TopBar";
 import { wordsData } from "../data/words";
 
+const sounds = {
+  click: new Audio("/sounds/click.mp3"),
+  correct: new Audio("/sounds/correct.mp3"),
+  wrong: new Audio("/sounds/wrong.mp3"),
+};
+
 function playEffect(name) {
-  const audio = new Audio(`/sounds/${name}.mp3`);
+  const audio = sounds[name];
+  if (!audio) return;
+
+  audio.currentTime = 0;
   audio.play().catch(() => {});
 }
 

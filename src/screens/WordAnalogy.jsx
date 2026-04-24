@@ -1,19 +1,28 @@
 import { useState } from "react";
 import TopBar from "../components/TopBar";
+import { wordsData } from "../data/words";
 import { analogyData } from "../data/analogy";
 
-const SOUND_ON = false;
+const sounds = {
+  click: new Audio("/sounds/click.mp3"),
+  correct: new Audio("/sounds/correct.mp3"),
+  wrong: new Audio("/sounds/wrong.mp3"),
+};
 
-function playClickSound() {
-  if (!SOUND_ON) return;
-  const audio = new Audio("/sounds/click.mp3");
+function playEffect(name) {
+  const audio = sounds[name];
+  if (!audio) return;
+
+  audio.currentTime = 0;
   audio.play().catch(() => {});
 }
 
 function createRipple(e) {
   try {
     const button = e.currentTarget;
-    playClickSound();
+    // ⭐ 사운드 먼저 실행 (핵심)
+    playEffect("click");
+
     const circle = document.createElement("span");
     const diameter = Math.max(button.clientWidth, button.clientHeight);
     const radius = diameter / 2;
@@ -56,58 +65,86 @@ export default function WordAnalogy({
   saveProgress,
   unit
 }) {
-  const [index, setIndex] = useState(0);
   const [wrong, setWrong] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
   const [showComplete, setShowComplete] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const question = analogyData[index];
+  const unitData = analogyData[unit];
+
+if (!unitData) {
+  console.log("❌ unit 문제:", unit);
+  return <div>데이터 없음</div>;
+}
+
+const questions = unitData.questions;
+
+if (!questions || questions.length === 0) {
+  return <div>문제 없음</div>;
+}
+
+if (currentIndex >= questions.length) {
+  return <div>끝!</div>;
+}
+
+const current = questions[currentIndex];
 
   // ✅ 정답 체크
   const checkAnswer = (choice) => {
-    if (choice === question.answer) {
+    if (choice === current.answer) {
+      playEffect("correct");
       setWrong(false);
       setShowAnswer(true);
       addScore && addScore();
       addXP && addXP();
     } else {
+      playEffect("wrong");
       setWrong(true);
     }
   };
 
   return (
     <div style={styles.container}>
-      {/* 진행 바 */}
       <div style={styles.progressBar}>
         <div
           style={{
-            width: `${progress}%`,
+            width: `${progress}%`,  // ⭐ 여기
             height: "100%",
             background: "#22c55e",
-            transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)"
+            transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)" // ⭐ 여기
           }}
         />
       </div>
-
       <TopBar
-        title="🧠 Word Analogy"
+        title={unitData.title}
         progress={progress}
         score={score}
         level={level}
         onBack={goBack}
       />
 
+      <h2
+        style={{ 
+          fontSize: "18px",
+          fontWeight: "500",
+          color: "white",
+          marginTop: "30px",
+          marginBottom: "10px",
+          opacity: 0.9 }}>
+        🧠 Word Analogy
+      </h2>
+
       {/* 진행 표시 */}
       <p style={styles.progressText}>
-        {index + 1} / {analogyData.length}
+        {currentIndex + 1} / {questions.length}
       </p>
 
       {/* 문제 */}
-      <h2 style={{ marginTop: "30px" }}>{question.question}</h2>
+      <h2 style={{ marginTop: "30px" }}>{current.question}</h2>
 
       {/* 선택지 */}
       <div style={styles.group}>
-        {question.choices.map((choice, i) => (
+        {current.choices.map((choice, i) => (
           <button
             key={i}
             style={styles.btn}
@@ -129,19 +166,19 @@ export default function WordAnalogy({
       {/* 설명 + Next */}
       {showAnswer && (
         <div style={styles.answerBox}>
-          <p style={styles.explanation}>{question.explanation}</p>
+          <p style={styles.explanation}>{current.explanation}</p>
 
           <button
             style={styles.nextBtn}
             onClick={(e) => {
               createRipple(e);
 
-              if (index === analogyData.length - 1) {
+              if (currentIndex === questions.length - 1) {
                 setAnalogyDone(true);
                 saveProgress(unit, "analogy");
                 setShowComplete(true);
               } else {
-                setIndex(index + 1);
+                setCurrentIndex(prev => prev + 1);
                 setWrong(false);
                 setShowAnswer(false);
               }
@@ -201,7 +238,8 @@ const styles = {
 
   progressBar: {
     width: "100%",
-    height: "10px",
+    height: "8px",
+    marginBottom: "10px",
     background: "#e5e7eb",
     borderRadius: "10px",
     overflow: "hidden"
@@ -209,7 +247,7 @@ const styles = {
 
   progressText: {
     marginTop: "10px",
-    fontSize: "12px"
+    fontSize: "14px"
   },
 
   group: {
@@ -243,7 +281,7 @@ const styles = {
   },
 
   explanation: {
-    fontSize: "13px",
+    fontSize: "14px",
     marginBottom: "10px"
   },
 

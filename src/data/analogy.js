@@ -1,4 +1,7 @@
-export const analogyData = [
+export const analogyData = {
+  2: {
+    title: "Unit 2. My Daily Life & Growth, Pt II",
+    questions: [ 
     {
       question: "illness : pain = accident : ?",
       answer: "danger",
@@ -95,4 +98,6 @@ export const analogyData = [
       choices: ["fresh", "soft", "sweet", "white"],
       explanation: "사과는 빨갛고 설탕은 달다. (사물 ↔ 특징)"
     }
-];
+    ]
+  },  
+}

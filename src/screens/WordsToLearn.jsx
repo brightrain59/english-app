@@ -2,10 +2,17 @@ import { useState } from "react";
 import TopBar from "../components/TopBar";
 import { wordsData } from "../data/words";
 
-const SOUND_ON = true;
+const sounds = {
+  click: new Audio("/sounds/click.mp3"),
+  correct: new Audio("/sounds/correct.mp3"),
+  wrong: new Audio("/sounds/wrong.mp3"),
+};
+
 function playEffect(name) {
-  if (!SOUND_ON) return;
-  const audio = new Audio(`/sounds/${name}.mp3`);
+  const audio = sounds[name];
+  if (!audio) return;
+
+  audio.currentTime = 0;
   audio.play().catch(() => {});
 }
 
@@ -60,7 +67,8 @@ export default function WordsToLearn({
   setWordsDone,
   progress,
   unit,
-  saveProgress
+  saveProgress,
+  handleNext
   }) {
   
   const [index, setIndex] = useState(0);
@@ -217,7 +225,7 @@ return (
             }}
             onClick={() => {
               setShowComplete(false);
-              goNext();
+              handleNext();
             }}
           >
               👉 Next
@@ -289,6 +297,7 @@ const styles = {
     justifyContent: "center",
     borderRadius: "8px",
     border: "none",
+    cursor: "pointer",
     marginTop: "20px",
     position: "relative",
     overflow: "hidden"
@@ -306,6 +315,7 @@ const styles = {
     justifyContent: "center",
     borderRadius: "8px",
     border: "none",
+    cursor: "pointer",
     marginTop: "20px",
     position: "relative",
     overflow: "hidden"
@@ -367,7 +377,7 @@ const styles = {
 
   popup: {
     position: "fixed",
-    top: "40%",
+    top: "36%",
     left: "50%",
     width: "100%",
     maxWidth: "250px",

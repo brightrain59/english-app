@@ -192,6 +192,21 @@ export default function App() {
     });
   };
 
+  const goClassification = () => setScreen("classification");
+  const goAnalogy = () => setScreen("analogy");
+
+  // ⭐ 3️⃣ 여기에 추가 (핵심 위치)
+  const nextMap = {
+    1: goClassification,
+    2: goAnalogy,
+    3: goClassification,
+    4: goAnalogy,
+  };
+
+  const handleNext = () => {
+    nextMap[unit]?.();
+  };
+
   return (
     <div
       className="container"
@@ -246,6 +261,7 @@ export default function App() {
           progress={unitProgress}
           saveProgress={saveProgress}
           unit={unit}
+          handleNext={handleNext}
         />
       )}
       
@@ -277,6 +293,7 @@ export default function App() {
         <AnalogyIntro
           goBack={() => setScreen("start")}
           goNext={() => setScreen("analogy")}
+          unit={unit}
         />
       )}
 
