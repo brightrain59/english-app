@@ -170,7 +170,11 @@ const handleWordClick = (word) => {
 
     setStreak(prev => {
       const next = prev + 1;
-      if (next === 5) playEffect("combo");
+      if (next >= 2) {
+        playEffect("combo");   // ⭐ 2부터 계속
+      } else {
+        playEffect("correct"); // ⭐ 첫 정답
+      }
       return next;
     });
 
