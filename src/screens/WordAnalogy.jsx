@@ -82,7 +82,6 @@ export default function WordAnalogy({
   const unitData = analogyData[unit];
 
 if (!unitData) {
-  console.log("❌ unit 문제:", unit);
   return <div>데이터 없음</div>;
 }
 
@@ -204,17 +203,22 @@ const current = questions[currentIndex];
             onClick={(e) => {
               createRipple(e);
 
-              if (currentIndex === questions.length - 1) {
-                playEffect("levelup");
-                setAnalogyDone(true);
-                saveProgress(unit, "analogy");
-                setShowComplete(true);
-              } else {
-                setCurrentIndex(prev => prev + 1);
-                setWrong(false);
-                setShowAnswer(false);
-              }
-            }}
+              setTimeout(() => {
+    if (currentIndex === questions.length - 1) {
+      playEffect("levelup");
+      setClassificationDone(true);
+      saveProgress(unit, "classification");
+      setShowComplete(true);
+    } else {
+      setCurrentIndex(prev => prev + 1);
+    }
+
+    setWrong(false);
+    setShowAnswer(false);
+    setSelected(null);   // ⭐ 추가 추천
+  }, 120);
+}}
+
           >
             Next ❯
           </button>

@@ -16,7 +16,6 @@ import { playLevelUp, vibrate } from "./utils/feedback";
 
 export default function App() {
   const [screen, setScreen] = useState("home");
-  console.log("현재 screen:", screen);
   const [unit, setUnit] = useState(1);
   const [score, setScore] = useState(0);
   const [xp, setXp] = useState(0);
@@ -286,6 +285,8 @@ export default function App() {
           progress={unitProgress}
           saveProgress={saveProgress}
           unit={unit}
+          streak={streak}
+          setStreak={setStreak}
         />
       )}
       

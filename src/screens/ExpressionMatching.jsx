@@ -89,6 +89,13 @@ export default function ExpressionMatching ({
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
   const [showComplete, setShowComplete] = useState(false);
+  const [selectedExercise, setSelectedExercise] = useState(0);
+
+  const exercises = matchingData[unit];
+  if (!exercises) {
+  return <div>데이터 없음</div>;
+  }
+  const currentExercise = exercises[selectedExercise];
 
   // 📦 데이터 보호
   const safeExercise = Math.min(exercise, matchingData.length - 1);

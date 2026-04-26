@@ -60,6 +60,8 @@ function createRipple(e) {
 export default function MatchingIntro({ goBack, goNext, unit }) {  
 
   const [selectedExercise, setSelectedExercise] = useState(0);
+
+  const exercises = matchingData[unit];
   
   const unitData = wordsData[unit];
   if (!unitData) {

@@ -65,18 +65,57 @@ export default function WordClassification({
   setClassificationDone,
   progress,
   saveProgress,
-  unit
+  unit,
+  streak,
+  setStreak
 }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [step, setStep] = useState(0);
   const [selected, setSelected] = useState(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const [showComplete, setShowComplete] = useState(false);
-  const questions = classificationData;
-
-  const current = questions[step];
-    if (!current || !current.words.includes(current.answer)) {
-    return <div>Data Error ⚠️</div>;
+  const [wrong, setWrong] = useState(false);
+  const [shake, setShake] = useState(false);
+  const questions = classificationData[unit];
+    if (!questions || !questions[currentIndex]) {
+      console.log("❌ questions 문제:", questions);
+      console.log("❌ unit:", unit);
+      console.log("❌ currentIndex:", currentIndex);
+    return <div>데이터 없음</div>;
     }
+  const current = questions[currentIndex];
+  const checkAnswer = (choice) => {
+  if (choice === current.answer) {
+    setStreak(prev => {
+      const next = prev + 1;
+
+      if (next >= 5) {
+        playEffect("combo");   // 🔥 콤보
+      } else {
+        playEffect("correct");
+      }
+
+      return next;
+    });
+
+    setWrong(false);
+    setShowAnswer(true);
+
+    // ⭐ XP 보너스
+    const bonusXP = 10 + streak * 2;
+    addXP && addXP(bonusXP);
+    addScore && addScore();
+
+  } else {
+    playEffect("wrong");
+
+    setWrong(true);
+    setShake(true);
+    setStreak(0);
+
+    setTimeout(() => setShake(false), 400);
+  }
+};
 
   const unitData = wordsData[unit];
     if (!unitData) {
@@ -117,19 +156,22 @@ export default function WordClassification({
 
       {/* 진행 표시 */}
       <p style={styles.progressText}>
-        {step + 1} / {questions.length}
+        {currentIndex + 1} / {questions.length}
       </p>
 
       {/* 단어 버튼 */}
-      <div style={styles.group}>
-        {current.words.map((w) => (
+      <div style={{
+        ...styles.group,
+        animation: shake ? "shake 0.3s" : "none"
+      }}>
+        {current.choices.map((choice, i) => (
           <button
-            key={w}
+            key={choice}
             style={{
               ...styles.btn,
               background:
-                  selected === w
-                    ? w === current.answer
+                  selected === choice
+                    ? choice === current.answer
                     ? "linear-gradient(135deg, #ADEBB3, #32CD32)"
                     : "linear-gradient(135deg, #663399, #9370db)"
                   : "linear-gradient(135deg, #ffffe0, #fafad2)"    
@@ -143,19 +185,20 @@ export default function WordClassification({
               onClick={(e) => {
                 // ❌ 정답 맞춘 경우만 막기
                 if (selected === current.answer) return;
-                setSelected(w);
-                if (w === current.answer) {
+                setSelected(choice);
+                if (choice === current.answer) {
                   playEffect("correct");
                   addScore && addScore();
                   addXP && addXP(); }
-                if (w !== current.answer) {
+                if (choice !== current.answer) {
                   playEffect("wrong");
                   setTimeout(() => {
                     setSelected(null);
                   }, 600);
                 }
-                createRipple(e); }} >
-                {w}
+                createRipple(e);
+                checkAnswer(choice) }}>
+                {choice}
           </button>
         ))}
       </div>
@@ -203,18 +246,19 @@ export default function WordClassification({
             }
             onClick={(e) => {
               createRipple(e);
-            
-            setTimeout(() => {
-              if (step === questions.length - 1) {
-                setClassificationDone(true);
-                saveProgress(unit, "classification");
-                setShowComplete(true);   // ⭐ popup 띄움
-              } else {
-                setStep(step + 1);
-              };
-              setSelected(null);
-              setShowAnswer(false);
-            }, 120);
+                setTimeout(() => {
+                  if (currentIndex === questions.length - 1) {
+                    playEffect("levelup");
+                    setClassificationDone(true);
+                    saveProgress(unit, "classification");
+                    setShowComplete(true);   // ⭐ popup 띄움
+                  } else {
+                    setCurrentIndex(prev => prev + 1);
+                  };
+                  setWrong(false);
+                  setShowAnswer(false);
+                  setSelected(null);
+                }, 120);
             }}
           >
             Next ❯
