@@ -20,7 +20,6 @@ export default function TopBar({
           <button 
             style={styles.backBtn} 
             onClick={() => {
-              console.log("back clicked");
               onBack && onBack();
             }}
           >

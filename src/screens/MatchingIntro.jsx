@@ -63,16 +63,16 @@ export default function MatchingIntro({ goBack, goNext, unit }) {
 
   const exercises = matchingData[unit];
   
-  const unitData = wordsData[unit];
-  if (!unitData) {
+  const wordUnit = wordsData[unit];
+  if (!wordUnit) {
   return <div>Loading...</div>;
   }
-  const words = unitData.words;
+  const words = wordUnit.words;
 
   return (
     <div style={styles.container}>
       <TopBar 
-        title={unitData.title}
+        title={wordUnit.title}
         onBack={goBack} />
 
       <h2

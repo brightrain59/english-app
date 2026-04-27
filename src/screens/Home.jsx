@@ -32,7 +32,15 @@ function CircleProgress({ percent }) {
     </div>
   );
 }
-export default function Home({ goUnit, unlockedUnits, progress }) {
+export default function Home({ goUnit, unlockedUnits, progress }) {  
+  const unlockAudio = () => {
+    const audio = new Audio();
+    audio.src = "/sounds/bgm1.mp3";
+    audio.play().then(() => {
+      audio.pause();   // ⭐ 중요
+    }).catch(() => {});
+  };
+
   return (
     <div style={styles.container}>
       <h1 
@@ -85,9 +93,14 @@ export default function Home({ goUnit, unlockedUnits, progress }) {
           animation: isComplete ? "shine 1s ease" : "none"
         }}
         onClick={() => {
-  console.log("클릭됨:", u.id);
-  goUnit(u.id);
-}}
+          unlockAudio();
+          isUnlocked && goUnit(u.id);
+        
+          setTimeout(() => {
+            console.log("audio unlocked");
+            console.log("screen:", screen);
+          }, 100);
+        }}
         onMouseOver={(e) =>
           (e.currentTarget.style.transform = "scale(1.03)")
         }

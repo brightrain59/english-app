@@ -78,9 +78,6 @@ export default function WordClassification({
   const [shake, setShake] = useState(false);
   const questions = classificationData[unit];
     if (!questions || !questions[currentIndex]) {
-      console.log("❌ questions 문제:", questions);
-      console.log("❌ unit:", unit);
-      console.log("❌ currentIndex:", currentIndex);
     return <div>데이터 없음</div>;
     }
   const current = questions[currentIndex];

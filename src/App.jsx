@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Home from "./screens/Home";
 import Start from "./screens/Start";
 import WordsIntro from "./screens/WordsIntro";
@@ -42,6 +42,61 @@ export default function App() {
   const [perfectEffect, setPerfectEffect] = useState(false);
   const [stepEffect, setStepEffect] = useState(false);
   const [streak, setStreak] = useState(0);
+  const [bgmOn, setBgmOn] = useState(true);
+  const bgmRef = useRef(null);
+
+  useEffect(() => {
+    if (!bgmOn) return;
+
+    const src = bgmMap[screen];
+    if (!src) return;
+
+    // 기존 음악 정지
+    if (bgmRef.current) {
+      bgmRef.current.pause();
+    }
+
+    // 새 음악 생성
+    const audio = new Audio(src);
+      audio.loop = true;
+      audio.volume = 0.15;
+
+    bgmRef.current = audio;
+
+    // 사용자 interaction 이후만 재생됨
+    audio.volume = 0;
+    audio.play().catch(() => {});
+
+    let v = 0;
+    const fade = setInterval(() => {
+      v += 0.02;
+      audio.volume = Math.min(v, 0.15);
+      if (v >= 0.15) clearInterval(fade);
+      }, 50);
+  }, [screen, bgmOn]);
+
+  const bgmMap = {
+    home: "/sounds/bgm1.mp3",   // ⭐ 추가
+    start: "/sounds/bgm1.mp3",
+    learn: "/sounds/bgm1.mp3",
+    classification: "/sounds/bgm2.mp3",
+    analogy: "/sounds/bgm2.mp3",
+    matching: "/sounds/bgm3.mp3",
+    paragraph: "/sounds/bgm4.mp3",
+  };
+
+  const toggleBGM = () => {
+    if (!bgmRef.current) return;
+
+    if (bgmRef.current.paused) {
+      bgmRef.current.play();
+      setBgmOn(true);
+    } else {
+      bgmRef.current.pause();
+      setBgmOn(false);
+    }
+  };
+
   const unitProgress =
     (wordsDone ? 25 : 0) +
     (classificationDone ? 25 : 0) +
@@ -163,18 +218,24 @@ export default function App() {
   const addScore = () => setScore((s) => s + 10);
 
   const goNext = () => {
-    setExercise(prev => {
-      const next = prev + 1;
+  const unitLength = paragraphData[unit].length;
 
-      if (next < paragraphData.length) {
-        return next;  // 다음 문제
-      } else {
-        setShowUnitComplete(true);  // ⭐ popup 실행
-        handleUnitComplete(unit);
-        return prev;
-      }
-    });
-  };
+  setExercise(prev => {
+    const next = prev + 1;
+
+    if (next < unitLength) {
+      return next;
+    } else {
+      return prev;
+    }
+  });
+
+  // ⭐ 밖에서 처리 (중요)
+  if (exercise + 1 >= paragraphData[unit].length) {
+    setShowUnitComplete(true);
+    handleUnitComplete(unit);
+  }
+};
 
   const handleUnitComplete = (unitId) => {
     setCompletedUnits((prev) => {
@@ -373,6 +434,7 @@ export default function App() {
           score={score}
           level={level}
           xp={xp}
+          paragraphDone={paragraphDone}
           setParagraphDone={setParagraphDone}
           saveProgress={saveProgress}
           unit={unit}
@@ -498,6 +560,36 @@ export default function App() {
           }}
         />
       )}
+
+      <div style={styles.bgmWrapper}>
+        <button
+          style={{
+            ...styles.bgmBtn,
+            background: bgmOn
+              ? "linear-gradient(135deg, #4facfe, #00f2fe)"
+              : "linear-gradient(135deg, #ccc, #eee)"
+            }}
+          onMouseDown={(e) => {
+            e.currentTarget.style.transform = "scale(0.9)";
+          }}
+          onMouseUp={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+          }}
+          onClick={() => {
+            if (!bgmRef.current) return;
+
+            if (bgmOn) {
+              bgmRef.current.pause();
+              setBgmOn(false);
+            } else {
+              bgmRef.current.play();
+              setBgmOn(true);
+            }
+          }}
+        >
+          {bgmOn ? "🔊" : "🔇"}
+        </button>
+      </div>
     </div>
   );
 }
@@ -616,5 +708,25 @@ const styles = {
     color: "#f97316",
     animation: "popIn 0.3s ease",
     zIndex: 2000
-}
+  },
+
+  bgmWrapper: {
+    position: "fixed",
+    top: "12px",
+    right: "12px",
+    zIndex: 999
+  },
+
+  bgmBtn: {
+    width: "44px",
+    height: "44px",
+    borderRadius: "50%",
+    border: "none",
+    cursor: "pointer",
+    background: "linear-gradient(135deg, #ffffffcc, #e0f7ffcc)",
+    backdropFilter: "blur(6px)",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+    fontSize: "20px",
+    transition: "all 0.2s ease",
+  }
 };

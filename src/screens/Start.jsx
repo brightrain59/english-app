@@ -73,7 +73,7 @@ export default function Start({
 
   const [open, setOpen] = useState(false);
 
-  const unitData = wordsData[unit];
+  const wordUnit = wordsData[unit];
 
   const activityMap = {
     1: "Word Classification",
@@ -86,7 +86,7 @@ export default function Start({
   
   return (
     <div style={styles.container}>
-      <TopBar title={unitData.title} onBack={goHome} />
+      <TopBar title={wordUnit.title} onBack={goHome} />
 
       <h2
         style={{ 
@@ -132,7 +132,7 @@ export default function Start({
         {/* ⭐ 단어 미리보기 */}
         {open && (
           <div style={styles.preview}>
-            {unitData.words.slice(0, 5).map((w, i) => (
+            {wordUnit.words.slice(0, 5).map((w, i) => (
               <div key={i} style={styles.wordItem}>
                 {w.word}
               </div>

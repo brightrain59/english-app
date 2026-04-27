@@ -58,16 +58,16 @@ function createRipple(e) {
 export default function WordsIntro
 ({ goBack, goNext, unit }) {  
   
-  const unitData = wordsData[unit];
-  if (!unitData) {
+  const wordUnit = wordsData[unit];
+  if (!wordUnit) {
   return <div>Loading...</div>;
   }
-  const words = unitData.words;
+  const words = wordUnit.words;
 
   return (
     <div style={styles.container}>
       <TopBar 
-        title={unitData.title}
+        title={wordUnit.title}
         onBack={goBack} />
 
       <h2
@@ -89,7 +89,7 @@ export default function WordsIntro
       </p>
 
       <p style={{ fontSize: "14px", opacity: 0.9 }}>
-        {unitData.words.length} words
+        {wordUnit.words.length} words
       </p>
 
       {/* 이미지 */}

@@ -21,7 +21,7 @@ function createRipple(e) {
   const button = e.currentTarget;
 
     // ⭐ 사운드 먼저 실행 (핵심)
-  playClickSound();
+  playEffect("click");
 
   const circle = document.createElement("span");
   const diameter = Math.max(button.clientWidth, button.clientHeight);
@@ -60,16 +60,16 @@ function createRipple(e) {
 export default function ParagraphIntro({ goBack, goNext, unit }) {
   const [selectedExercise, setSelectedExercise] = useState(0);
   
-  const unitData = wordsData[unit];
-  if (!unitData) {
+  const wordUnit = wordsData[unit];
+  if (!wordUnit) {
   return <div>Loading...</div>;
   }
-  const words = unitData.words;
+  const words = wordUnit.words;
 
   return (
       <div style={styles.container}>
         <TopBar 
-          title={unitData.title}
+          title={wordUnit.title}
           onBack={goBack} />
 
       <h2

@@ -27,6 +27,8 @@ function playVoice(unit, file) {
 /* 💧 ripple */
 function createRipple(e) {
   const button = e.currentTarget;
+  // ⭐ 사운드 먼저 실행 (핵심)
+  playEffect("click");
 
   const circle = document.createElement("span");
   const diameter = Math.max(button.clientWidth, button.clientHeight);
@@ -60,6 +62,7 @@ export default function Paragraph({
   xp,
   progress,
   saveProgress,
+  paragraphDone,
   setParagraphDone,
   unit,
   triggerFireworks,
@@ -68,18 +71,17 @@ export default function Paragraph({
   setStreak
 }) {
   
-  const currentSet = paragraphData[exercise];
-
-  if (!currentSet) {
-    return <div style={{ color: "white" }}>Loading...</div>;
+  const paragraphUnit = paragraphData[unit];
+  const current = paragraphUnit[exercise];
+    if (!paragraphUnit || !current) {
+    return <div>데이터 없음</div>;
   }
-
-  const sentences = currentSet.sentences; // ⭐ 이거 추가
-
+  const sentences = current.sentences;
   /* 🧠 상태 */
   const [answers, setAnswers] = useState([]);
 
   useEffect(() => {
+    setParagraphDone(false);
     setShowAnswer(false);
     setRating("");        // ⭐ Perfect/Good 초기화
     setFeedback("");
@@ -87,15 +89,15 @@ export default function Paragraph({
     setResult(null);
     setWrong(false);
         
-    if (sentences) {
-      setAnswers(
-        sentences.map(s => {
-          const blanks = s.text.split(/_{3,}/).length - 1;
-          return Array(blanks).fill(null);
-        })
-      );
-    }
-  }, [sentences]);
+    if (current?.sentences) {
+    setAnswers(
+      current.sentences.map(s => {
+        const blanks = s.text.split(/_{3,}/).length - 1;
+        return Array(blanks).fill(null);
+      })
+    );
+  }
+  }, [exercise]);
 
   const audioRef = useRef(null);
     useEffect(() => {
@@ -108,6 +110,7 @@ export default function Paragraph({
   const [result, setResult] = useState(null); 
   const [rating, setRating] = useState("");
   const [wrong, setWrong] = useState(false);
+  const [hadWrongAttempt, setHadWrongAttempt] = useState(false);
 
   /* 🎯 선택 */
   const [activeBlank, setActiveBlank] = useState(null);
@@ -148,8 +151,8 @@ const handleWordClick = (word) => {
   };
 
   /* 🎯 전체 정답 체크 */
-  const isAllCorrect = currentSet.sentences.every((s, sIdx) => {
-  // answers가 없으면 통과
+  const isAllCorrect = current.sentences.every((s, sIdx) => {
+    // 빈 문장은 패스
     if (!s.answers || s.answers.length === 0) return true;
 
     // 배열이 아니면 강제로 배열로 변환
@@ -172,7 +175,7 @@ const handleWordClick = (word) => {
     setShowAnswer(true);
     setResult("correct");
 
-    const isPerfect = true;
+    const isPerfect = !hadWrongAttempt;
     setRating(isPerfect ? "Perfect! 🏆" : "Good! 👍");
 
     addXP && addXP(20 + streak * 2);
@@ -192,6 +195,7 @@ const handleWordClick = (word) => {
     setFeedback("😢 Check the highlighted blanks!");
     setShake(true);
     setWrong(true);
+    setHadWrongAttempt(true);
     setStreak(0);
     setResult("wrong");
 
@@ -204,19 +208,25 @@ const handleWordClick = (word) => {
     const isPerfect = !wrong;
 
     setRating(isPerfect ? "🏆 Perfect!" : "👍 Good!");
+    
+    const isLast = exercise === paragraphUnit.length - 1;
 
-    if (exercise === paragraphData.length - 1) {
+    if (isLast && !paragraphDone) {
       setParagraphDone(true);
-      saveProgress(unit, "paragraph");
-      handleUnitComplete(unit);
 
-    if (isPerfect) {
-      triggerFireworks(); // 🎆
+    if (isPerfect) triggerFireworks();
+
+    handleUnitComplete(unit);
+      return;
     }
-  }
 
-  goNext && goNext();
-};
+    goNext && goNext();   // ⭐ 여기 이동
+
+    setResult(null);
+    setWrong(false);
+    setShowAnswer(false);
+    setHadWrongAttempt(false);
+  };
 
   const fillText = (text, answers) => {
     if (!answers || answers.length === 0) return text;
@@ -225,11 +235,11 @@ const handleWordClick = (word) => {
     return text.replace(/_{3,}/g, () => answers[i++] || "");
   };
 
-  const fullText = currentSet.sentences
+  const fullText = current.sentences
     .map(s => fillText(s.text, s.answers))
     .join(" ");
 
-  const fullKo = currentSet.sentences
+  const fullKo = current.sentences
     .map(s => s.ko)
     .join(" ");
 
@@ -253,11 +263,11 @@ const handleWordClick = (word) => {
     audio.play();
   };
   
-  const unitData = wordsData[unit];
-  if (!unitData) {
+  const wordUnit = wordsData[unit];
+  if (!wordUnit) {
   return <div>Loading...</div>;
   }
-  const words = unitData.words;
+  const words = wordUnit.words;
 
   return (
     <div style={styles.container}>
@@ -272,7 +282,7 @@ const handleWordClick = (word) => {
         />
       </div>
       <TopBar
-        title={unitData.title}
+        title={wordUnit.title}
         onBack={goBack}
         level={level}
         xp={xp}
@@ -291,12 +301,12 @@ const handleWordClick = (word) => {
       </h2>
 
       <div style={styles.subtitle}>
-        {currentSet.title}
+        {current.title}
       </div>
 
       {/* 🔥 단락 전체 */}
       <div style={styles.paragraph}>
-        {currentSet.sentences.map((s, sIdx) => {
+        {current.sentences.map((s, sIdx) => {
           const parts = s.text.split(/_{3,}/);
             return (
               <span key={sIdx}>
@@ -351,7 +361,7 @@ const handleWordClick = (word) => {
       <div style={styles.choices}>
         {[
           ...new Set(
-            currentSet.sentences.flatMap(s => s.choices || [])
+            current.sentences.flatMap(s => s.choices || [])
           )
         ].map(word => (
           <button
@@ -387,14 +397,14 @@ const handleWordClick = (word) => {
 
           {/* 한국어 전체 */}
           <div style={styles.resultKo}>
-            {currentSet.sentences
+            {current.sentences
               .map(s => s.ko)
               .join(" ")}
           </div>
 
           {/* 팁 */}
           <ul style={styles.resultTips}>
-            {[...new Set(currentSet.sentences.flatMap(s => s.tips || []))]
+            {[...new Set(current.sentences.flatMap(s => s.tips || []))]
               .map((tip, idx) => (
               <li key={idx}>💡 {tip}</li>
             ))}

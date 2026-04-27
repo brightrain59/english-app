@@ -19,12 +19,6 @@ function playEffect(name) {
   audio.play().catch(() => {});
 }
 
-/* 🔊 학습 음성 */
-function playVoice(unit, file) {
-  const audio = new Audio(`/audio/unit${unit}/${file}`);
-  audio.play().catch(() => {});
-}
-
 /* 💧 ripple */
 function createRipple(e) {
   try {
@@ -98,8 +92,8 @@ export default function ExpressionMatching ({
   const currentExercise = exercises[selectedExercise];
 
   // 📦 데이터 보호
-  const safeExercise = Math.min(exercise, matchingData.length - 1);
-  const currentSet = matchingData[safeExercise];
+  const safeExercise = Math.min(exercise, exercises.length - 1);
+  const currentSet = exercises[safeExercise];
 
   const sentences = currentSet.sentences;
   const options = currentSet.options;
@@ -122,7 +116,7 @@ export default function ExpressionMatching ({
   const playSentence = (rate = 1) => {
     if (currentAudioIndex === null) return;
     const audio = new Audio(
-      `/audio/unit${unit}/$ex${safeExercise + 1}_${currentAudioIndex + 1}.mp3`
+      `/audio/unit${unit}/ex${safeExercise + 1}_${currentAudioIndex + 1}.mp3`
     );
     audio.playbackRate = rate;
     audio.play();
@@ -225,7 +219,7 @@ export default function ExpressionMatching ({
 
       setTimeout(() => {
         const audio = new Audio(
-        `/audio/unit1/ex${exercise + 1}_${idx + 1}.mp3`
+        `/audio/unit${unit}/ex${safeExercise + 1}_${idx + 1}.mp3`
         );
         audio.play().catch(() => {});
       }, 150);
@@ -277,11 +271,11 @@ export default function ExpressionMatching ({
 
   const answers = currentSet.answers;
   
-  const unitData = wordsData[unit];
-  if (!unitData) {
+  const wordUnit = wordsData[unit];
+  if (!wordUnit) {
   return <div>Loading...</div>;
   }
-  const words = unitData.words;
+  const words = wordUnit.words;
 
   return (
     <div style={{ ...styles.container }}>
@@ -297,7 +291,7 @@ export default function ExpressionMatching ({
       </div>
 
       <TopBar
-        title={unitData.title}
+        title={wordUnit.title}
         progress={progress}
         onBack={goBack}
         score={score}
@@ -476,7 +470,7 @@ export default function ExpressionMatching ({
 			            matched.length === currentSet.answers.length * 2;
 
 		              if (isComplete) {
-                    if (exercise === matchingData.length - 1) {
+                    if (exercise === exercises.length - 1) {
                       setMatchingDone(true);
                       saveProgress(unit, "matching");
                       setShowComplete(true);   // ⭐ 마지막만 popup

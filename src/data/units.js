@@ -1,52 +1,52 @@
 export const units = [
   {
     id: 1,
-    title: "My Daily Life & Growth, Part I",
+    title: "My Daily Life & Growth, I",
     unlocked: true
   },
   {
     id: 2,
-    title: "My Daily Life & Growth, Part II",
+    title: "My Daily Life & Growth, II",
     unlocked: false
   },
   {
     id: 3,
-    title: "Home & Family Life, Part I",
+    title: "Home & Family Life, I",
     unlocked: false
   },
   {
     id: 4,
-    title: "Home & Family Life, Part II",
+    title: "Home & Family Life, II",
     unlocked: false
   },
   {
     id: 5,
-    title: "Learning & School Community, Part I",
+    title: "Learning & School Community, I",
     unlocked: false
   },
   {
     id: 6,
-    title: "Learning & School Community, Part II",
+    title: "Learning & School Community, II",
     unlocked: false
   },
   {
     id: 7,
-    title: "Living in Society, Part I",
+    title: "Living in Society, I",
     unlocked: false
   },
   {
     id: 8,
-    title: "Living in Society, Part II",
+    title: "Living in Society, II",
     unlocked: false
   },
   {
     id: 9,
-    title: "Exploring Culture, Part I",
+    title: "Exploring Culture, I",
     unlocked: false
   },
   {
     id: 10,
-    title: "Exploring Culture, Part II",
+    title: "Exploring Culture, II",
     unlocked: false
   },
   {
@@ -56,12 +56,12 @@ export const units = [
   },
   {
     id: 12,
-    title: "Our Planet & Sustainability, Part I",
+    title: "Our Planet & Sustainability, I",
     unlocked: false
   },
   {
     id: 13,
-    title: "Our Planet & Sustainability, Part II",
+    title: "Our Planet & Sustainability, II",
     unlocked: false
   },
   {

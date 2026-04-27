@@ -76,8 +76,8 @@ export default function WordsToLearn({
   const [showMeaning, setShowMeaning] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
   const [showComplete, setShowComplete] = useState(false);
-  const unitData = wordsData[unit];
-  const words = unitData.words;
+  const wordUnit = wordsData[unit];
+  const words = wordUnit.words;
   const handleKnow = () => {
     goNextWord();
   };
@@ -125,7 +125,7 @@ return (
       </div>
 
       <TopBar 
-        title={unitData.title}
+        title={wordUnit.title}
         progress={progress}
         onBack={goBack} />
 
@@ -153,7 +153,8 @@ return (
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = "scale(1)";
           }}
-          onClick={(e) => handleClickEffect(e, handleKnow)}>
+          onClick={(e) => {
+            handleClickEffect(e, handleKnow)}}>
           I know 👍
         </button>
 
