@@ -120,7 +120,8 @@ export default function Paragraph({
   const [rating, setRating] = useState("");
   const [wrong, setWrong] = useState(false);
   const [hadWrongAttempt, setHadWrongAttempt] = useState(false);
-
+  console.log("OK clicked");
+  console.log("goNext called");
   /* 🎯 선택 */
   const [activeBlank, setActiveBlank] = useState(null);
 
@@ -223,20 +224,19 @@ const handleWordClick = (word) => {
     const isLast = exercise === paragraphUnit.length - 1;
 
     if (isLast) {
-  if (!progress[unit]?.paragraph) {
-    saveProgress(unit, "paragraph");   // ⭐ 한번만 저장
-  }
-
-  setParagraphDone(true);
-
-  if (isPerfect) triggerFireworks();
-
-  handleUnitComplete(unit);
-  return;
-}
+      if (!progress[unit]?.paragraph) {
+      saveProgress(unit, "paragraph");   // ⭐ 한번만 저장
+      }
+    
+    setParagraphDone(true);
+  
+    if (isPerfect) triggerFireworks();
 
     goNext && goNext();   // ⭐ 여기 이동
 
+    return;
+    }
+    
     setResult(null);
     setWrong(false);
     setShowAnswer(false);

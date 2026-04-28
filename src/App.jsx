@@ -54,7 +54,7 @@ export default function App() {
   const [bgmOn, setBgmOn] = useState(true);
   const bgmRef = useRef(null);
   const [comboFlash, setComboFlash] = useState(false);
-  console.log("unit1:", progress[1]);
+  
   useEffect(() => {
     if (!bgmOn) return;
 
@@ -259,15 +259,10 @@ export default function App() {
     if (next < unitLength) {
       return next;
     } else {
-      return prev;
+      setShowUnitComplete(true);
+      return prev;   // ⭐ 핵심 (3으로 증가)
     }
   });
-
-  // ⭐ 밖에서 처리 (중요)
-  if (exercise + 1 >= paragraphData[unit].length) {
-    setShowUnitComplete(true);
-    handleUnitComplete(unit);
-  }
 };
 
   const handleUnitComplete = (unitId) => {
@@ -533,6 +528,8 @@ export default function App() {
                 }}
                 onClick={() => {
                   setShowUnitComplete(false);
+                  setScreen("home");
+                  handleUnitComplete(unit);   // ⭐ 여기
                   setScreen("home");
                 }}
               >

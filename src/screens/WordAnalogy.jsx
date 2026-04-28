@@ -355,7 +355,7 @@ const styles = {
   question: {
     marginTop: "10px",
     marginBottome: "20px",
-    fontSzie: "14px",
+    fontSzie: "16px",
     color: "#ffc60a"
   },
 
