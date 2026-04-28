@@ -45,10 +45,12 @@ export default function Home({ goUnit, unlockedUnits, progress }) {
     <div style={styles.container}>
       <h1 
         style={{ 
-            fontSize: "clamp(12px, 4vw, 26px)",
-            fontWeight: "bold",
-            marginBottom: "20px" }}>
-            🎮 English Vocabulary Fun Master
+          fontSize: "clamp(12px, 4vw, 26px)",
+          fontWeight: "bold",
+          marginBottom: "20px",
+          letterSpacing: "0.1px"    // ⭐ 추가 (0.5~1.5px 추천)
+        }}>
+          🎮 English Vocabulary Fun Master
       </h1>
       <img src="/study.png" 
         style={{

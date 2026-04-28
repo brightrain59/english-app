@@ -51,38 +51,51 @@ export default function App() {
     const src = bgmMap[screen];
     if (!src) return;
 
-    // 기존 음악 정지
-    if (bgmRef.current) {
-      bgmRef.current.pause();
-    }
+  const newAudio = new Audio(src);
+  newAudio.loop = true;
+  newAudio.volume = 0;
 
-    // 새 음악 생성
-    const audio = new Audio(src);
-      audio.loop = true;
-      audio.volume = 0.15;
+  newAudio.play().catch(() => {});
 
-    bgmRef.current = audio;
+  // 🎵 fade in
+  let v = 0;
+  const fadeIn = setInterval(() => {
+    v += 0.02;
+    newAudio.volume = Math.min(v, 0.15);
+    if (v >= 0.15) clearInterval(fadeIn);
+  }, 50);
 
-    // 사용자 interaction 이후만 재생됨
-    audio.volume = 0;
-    audio.play().catch(() => {});
+  // 🎵 기존 음악 fade out
+  if (bgmRef.current) {
+    const old = bgmRef.current;
+    let ov = old.volume;
 
-    let v = 0;
-    const fade = setInterval(() => {
-      v += 0.02;
-      audio.volume = Math.min(v, 0.15);
-      if (v >= 0.15) clearInterval(fade);
-      }, 50);
+    const fadeOut = setInterval(() => {
+      ov -= 0.02;
+      old.volume = Math.max(ov, 0);
+
+      if (ov <= 0) {
+        old.pause();
+        clearInterval(fadeOut);
+      }
+    }, 50);
+  }
+  bgmRef.current = newAudio;
   }, [screen, bgmOn]);
 
   const bgmMap = {
     home: "/sounds/bgm1.mp3",   // ⭐ 추가
     start: "/sounds/bgm1.mp3",
+    wordsIntro: "/sounds/bgm1.mp3",
     learn: "/sounds/bgm1.mp3",
+    classificationIntro: "/sounds/bgm2.mp3",
     classification: "/sounds/bgm2.mp3",
+    analogyIntro: "/sounds/bgm2.mp3",
     analogy: "/sounds/bgm2.mp3",
+    matchingIntro: "/sounds/bgm3.mp3",
     matching: "/sounds/bgm3.mp3",
-    paragraph: "/sounds/bgm4.mp3",
+    paragrphIntro: "/sounds/bgm4.mp3",
+    paragraph: "/sounds/bgm4.mp3"
   };
 
   const toggleBGM = () => {
@@ -97,11 +110,23 @@ export default function App() {
     }
   };
 
-  const unitProgress =
-    (wordsDone ? 25 : 0) +
-    (classificationDone ? 25 : 0) +
-    (matchingDone ? 25 : 0) +
-    (paragraphDone ? 25 : 0);
+  const unitStructure = {
+    1: ["words", "classification", "matching", "paragraph"],
+    2: ["words", "analogy", "matching", "paragraph"],
+  };
+
+  const unitProgress = unitStructure[unit].reduce((acc, key) => {
+    const doneMap = {
+      words: wordsDone,
+      classification: classificationDone,
+      analogy: analogyDone,
+      matching: matchingDone,
+      paragraph: paragraphDone,
+    };
+
+    return acc + (doneMap[key] ? 25 : 0);
+  }, 0);
+
   const level = Math.floor(xp / 50) + 1;
   const addXP = () => {
     setXp((prev) => {
@@ -159,6 +184,7 @@ export default function App() {
       [unit]: {
         words: progress[unit]?.words || false,
         classification: progress[unit]?.classification || false,
+        analogy: progress[unit]?.analogy || false,
         matching: progress[unit]?.matching || false,
         paragraph: progress[unit]?.paragraph || false,
         [type]: true
@@ -178,7 +204,7 @@ export default function App() {
   const isUnitComplete = (unit) => {
     return (
       progress[unit]?.words &&
-      progress[unit]?.classification &&
+      (progress[unit]?.classification || progress[unit]?.analogy) &&
       progress[unit]?.matching &&
       progress[unit]?.paragraph
     );
@@ -189,7 +215,7 @@ export default function App() {
 
     const done =
       (p.words ? 1 : 0) +
-      (p.classification ? 1 : 0) +
+      (p.classification || p.analogy ? 1 : 0) +
       (p.matching ? 1 : 0) +
       (p.paragraph ? 1 : 0);
 
@@ -199,7 +225,7 @@ export default function App() {
     return Object.values(data).every(
       (u) =>
         u.words &&
-        u.classification &&
+        (u.classification || u.analogy) &&
         u.matching &&
         u.paragraph
     );

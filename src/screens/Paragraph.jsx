@@ -10,13 +10,11 @@ const sounds = {
   combo: new Audio("/sounds/combo.mp3"),
 };
 
-function playEffect(name) {
-  const audio = sounds[name];
-  if (!audio) return;
-
-  audio.currentTime = 0;
-  audio.play().catch(() => {});
-}
+const playEffect = (name) => {
+  const audio = new Audio(`/sounds/${name}.mp3`);
+  audio.volume = 0.6;   // ⭐ BGM보다 크게
+  audio.play();
+};
 
 /* 🔊 학습 음성 */
 function playVoice(unit, file) {

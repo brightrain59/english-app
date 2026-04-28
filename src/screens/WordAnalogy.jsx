@@ -10,13 +10,11 @@ const sounds = {
   combo: new Audio("/sounds/combo.mp3")
 };
 
-function playEffect(name) {
-  const audio = sounds[name];
-  if (!audio) return;
-
-  audio.currentTime = 0;
-  audio.play().catch(() => {});
-}
+const playEffect = (name) => {
+  const audio = new Audio(`/sounds/${name}.mp3`);
+  audio.volume = 0.6;   // ⭐ BGM보다 크게
+  audio.play();
+};
 
 function playVoice(unit, file) {
   const audio = new Audio(`/audio/unit${unit}/${file}`);
@@ -74,6 +72,8 @@ export default function WordAnalogy({
   setStreak
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [step, setStep] = useState(0);
+  const [selected, setSelected] = useState(null);
   const [wrong, setWrong] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
   const [showComplete, setShowComplete] = useState(false);
@@ -124,6 +124,7 @@ const current = questions[currentIndex];
     } else {
       playEffect("wrong");
       setWrong(true);
+      setShake(true);
       setStreak(0);
 
       setTimeout(() => setShake(false), 400);
@@ -167,7 +168,10 @@ const current = questions[currentIndex];
       </p>
 
       {/* 문제 */}
-      <h2 style={{ marginTop: "30px" }}>{current.question}</h2>
+      <p style={{ 
+        ...styles.question
+        }}>
+          {current.question}</p>
 
       {/* 선택지 */}
       <div style={{
@@ -176,49 +180,81 @@ const current = questions[currentIndex];
       }}>
         {current.choices.map((choice, i) => (
           <button
-            key={i}
-            style={styles.btn}
-            onClick={(e) => {
-              if (showAnswer) return;
-              checkAnswer(choice);
-              createRipple(e);
+            key={choice}
+            style={{
+              ...styles.btn,
+              background:
+                  selected === choice
+                    ? choice === current.answer
+                    ? "linear-gradient(135deg, #ADEBB3, #32CD32)"
+                    : "linear-gradient(135deg, #663399, #9370db)"
+                  : "linear-gradient(135deg, #ffffe0, #fafad2)"    
             }}
-          >
-            {choice}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.transform = "scale(1.05)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.transform = "scale(1)")
+              }
+              onClick={(e) => {
+                // ❌ 정답 맞춘 경우만 막기
+                if (selected === current.answer) return;
+                setSelected(choice);
+                if (choice === current.answer) {
+                  playEffect("correct");
+                  addScore && addScore();
+                  addXP && addXP(); }
+                if (choice !== current.answer) {
+                  playEffect("wrong");
+                  setTimeout(() => {
+                    setSelected(null);
+                  }, 600);
+                }
+                createRipple(e);
+                checkAnswer(choice) }}>
+                {choice}
           </button>
         ))}
       </div>
 
       {/* 피드백 */}
-      {wrong && <p style={styles.feedback}>😢 Try again!</p>}
-      {showAnswer && <p style={styles.feedback}>🎉 Great!</p>}
+      {selected && (
+        <p style={styles.feedback}>
+          {selected === current.answer ? "🎉 Great!" : "😢 Try again!"}
+        </p>
+      )}
 
       {/* 설명 + Next */}
       {showAnswer && (
         <div style={styles.answerBox}>
-          <p style={styles.explanation}>{current.explanation}</p>
+          <p style={styles.explanation}>
+            {current.explanation}
+          </p>
 
           <button
             style={styles.nextBtn}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.transform = "scale(1.05)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.transform = "scale(1)")
+            }
             onClick={(e) => {
               createRipple(e);
-
-              setTimeout(() => {
-    if (currentIndex === questions.length - 1) {
-      playEffect("levelup");
-      setClassificationDone(true);
-      saveProgress(unit, "classification");
-      setShowComplete(true);
-    } else {
-      setCurrentIndex(prev => prev + 1);
-    }
-
-    setWrong(false);
-    setShowAnswer(false);
-    setSelected(null);   // ⭐ 추가 추천
-  }, 120);
-}}
-
+                setTimeout(() => {
+                  if (currentIndex === questions.length - 1) {
+                    playEffect("levelup");
+                    setAnalogyDone(true);
+                    saveProgress(unit, "analogy");
+                    setShowComplete(true);   // ⭐ popup 띄움
+                  } else {
+                    setCurrentIndex(prev => prev + 1);
+                  };
+                  setWrong(false);
+                  setShowAnswer(false);
+                  setSelected(null);
+                }, 120);
+            }}
           >
             Next ❯
           </button>
@@ -230,25 +266,37 @@ const current = questions[currentIndex];
         <div style={styles.popup}>
           🎆🎆🎆
           <div style={styles.sparkle}>✨✨✨</div>
-          <h2>🎉 Analogy Complete!</h2>
+            <h2>🎉 Analogy Complete!</h2>
 
           <div style={{ marginTop: "15px", display: "flex", gap: "10px", justifyContent: "center" }}>
             <button
               style={styles.btnPrimary}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "scale(1.05)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "scale(1)";
+              }}
               onClick={() => {
                 setShowComplete(false);
                 goMatching();
               }}
             >
-              👉 Next
+                👉 Next
             </button>
 
             <button
               style={styles.btnSecondary}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "scale(1.05)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "scale(1)";
+              }}
               onClick={() => {
                 setShowComplete(false);
-                setIndex(0);
-                setWrong(false);
+                setStep(0);
+                setSelected(null);
                 setShowAnswer(false);
               }}
             >
@@ -286,11 +334,18 @@ const styles = {
     fontSize: "14px"
   },
 
+  question: {
+    marginTop: "10px",
+    marginBottome: "20px",
+    fontSzie: "14px",
+    color: "	#ffc60a"
+  },
+
   group: {
     display: "flex",
     gap: "10px",
     flexWrap: "wrap",
-    marginTop: "30px",
+    marginTop: "20px",
     justifyContent: "center"
   },
 
@@ -299,8 +354,9 @@ const styles = {
     borderRadius: "8px",
     border: "none",
     cursor: "pointer",
+    transition: "all 0.15s ease",
+    fontSize: "14px",
     color: "black",
-    background: "linear-gradient(135deg, #ffffe0, #fafad2)",
     position: "relative",
     overflow: "hidden"
   },
@@ -322,38 +378,56 @@ const styles = {
   },
 
   nextBtn: {
+    marginTop: "20px",
     padding: "6px 14px",
     borderRadius: "8px",
     border: "none",
     background: "linear-gradient(135deg, #ADEBB3, #32CD32)",
-    cursor: "pointer"
+    color: "black",
+    cursor: "pointer",
+    position: "relative",
+    overflow: "hidden"
   },
 
   popup: {
     position: "fixed",
     top: "35%",
     left: "50%",
+    width: "100%",
+    maxWidth: "300px",
     transform: "translate(-50%, -50%)",
     background: "#fef3c7",
     padding: "20px",
     borderRadius: "15px",
     textAlign: "center",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.3)"
+    boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+    zIndex: 1000,
+    pointerEvents: "auto"
   },
 
   btnPrimary: {
+    marginTop: "24px",
     padding: "8px 18px",
     borderRadius: "8px",
     border: "none",
+    color: "black",
     background: "linear-gradient(135deg, #ADEBB3, #32CD32)",
-    cursor: "pointer"
+    cursor: "pointer",
+    display: "block",
+    marginLeft: "auto",
+    marginRight: "auto"
   },
 
   btnSecondary: {
+    marginTop: "24px",
     padding: "8px 18px",
     borderRadius: "8px",
     border: "none",
+    color: "#9400d3",
     background: "linear-gradient(135deg, #ffffe0, #fafad2)",
-    cursor: "pointer"
+    cursor: "pointer",
+    display: "block",
+    marginLeft: "auto",
+    marginRight: "auto"
   }
 };

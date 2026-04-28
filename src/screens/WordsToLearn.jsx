@@ -9,13 +9,11 @@ const sounds = {
   combo: new Audio("/sounds/combo.mp3")
 };
 
-function playEffect(name) {
-  const audio = sounds[name];
-  if (!audio) return;
-
-  audio.currentTime = 0;
-  audio.play().catch(() => {});
-}
+const playEffect = (name) => {
+  const audio = new Audio(`/sounds/${name}.mp3`);
+  audio.volume = 0.6;   // ⭐ BGM보다 크게
+  audio.play();
+};
 
 function playVoice(unit, file) {
   const audio = new Audio(`/audio/unit${unit}/${file}`);
@@ -292,6 +290,7 @@ const styles = {
     width: "130px",
     height: "30px",
     background: "linear-gradient(135deg, #ADEBB3, #32CD32)",
+    fontSize: "14px",
     color: "white",
     padding: "10px 16px",
     display: "flex",
@@ -310,6 +309,7 @@ const styles = {
     width: "130px",
     height: "30px",
     background: "linear-gradient(135deg, 	#FFA500, #ff8000)",
+    fontSize: "14px",
     color: "white",
     padding: "10px 16px",
     display: "flex",

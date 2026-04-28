@@ -2,10 +2,18 @@ import TopBar from "../components/TopBar";
 import { wordsData } from "../data/words";
 import { classificationData } from "../data/classification";
 
-function playEffect(name) {
+const sounds = {
+  click: new Audio("/sounds/click.mp3"),
+  correct: new Audio("/sounds/correct.mp3"),
+  wrong: new Audio("/sounds/wrong.mp3"),
+  combo: new Audio("/sounds/combo.mp3")
+};
+
+const playEffect = (name) => {
   const audio = new Audio(`/sounds/${name}.mp3`);
-  audio.play().catch(() => {});
-}
+  audio.volume = 0.6;   // ⭐ BGM보다 크게
+  audio.play();
+};
 
 function createRipple(e) {
   const button = e.currentTarget;

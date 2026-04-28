@@ -10,13 +10,11 @@ const sounds = {
   combo: new Audio("/sounds/combo.mp3")
 };
 
-function playEffect(name) {
-  const audio = sounds[name];
-  if (!audio) return;
-
-  audio.currentTime = 0;
-  audio.play().catch(() => {});
-}
+const playEffect = (name) => {
+  const audio = new Audio(`/sounds/${name}.mp3`);
+  audio.volume = 0.6;   // ⭐ BGM보다 크게
+  audio.play();
+};
 
 function playVoice(unit, file) {
   const audio = new Audio(`/audio/unit${unit}/${file}`);
@@ -76,6 +74,7 @@ export default function WordClassification({
   const [showComplete, setShowComplete] = useState(false);
   const [wrong, setWrong] = useState(false);
   const [shake, setShake] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
   const questions = classificationData[unit];
     if (!questions || !questions[currentIndex]) {
     return <div>데이터 없음</div>;
@@ -105,7 +104,6 @@ export default function WordClassification({
 
   } else {
     playEffect("wrong");
-
     setWrong(true);
     setShake(true);
     setStreak(0);
@@ -121,6 +119,7 @@ export default function WordClassification({
     const words = unitData.words;
 
   return (
+    <div key={resetKey}>
     <div style={styles.container}>
       <div style={styles.progressBar}>
         <div
@@ -296,6 +295,7 @@ export default function WordClassification({
                 e.currentTarget.style.transform = "scale(1)";
               }}
               onClick={() => {
+                setResetKey(prev => prev + 1);
                 setShowComplete(false);
                 setStep(0);
                 setSelected(null);
@@ -307,6 +307,7 @@ export default function WordClassification({
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }
@@ -393,12 +394,6 @@ const styles = {
   explanation: {
     fontSize: "14px",
     marginBottom: "10px"
-  },
-
-  done: {
-    marginTop: "10px",
-    color: "black",
-    fontSize: "18px"
   },
 
   popup: {
