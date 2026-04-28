@@ -53,6 +53,7 @@ export default function App() {
   const [streak, setStreak] = useState(0);
   const [bgmOn, setBgmOn] = useState(true);
   const bgmRef = useRef(null);
+  const [comboFlash, setComboFlash] = useState(false);
 
   useEffect(() => {
     if (!bgmOn) return;
@@ -380,6 +381,7 @@ export default function App() {
           unit={unit}
           streak={streak}
           setStreak={setStreak}
+          setComboFlash={setComboFlash}
         />
       )}
       
@@ -406,6 +408,7 @@ export default function App() {
           unit={unit}
           streak={streak}
           setStreak={setStreak}
+          setComboFlash={setComboFlash}
         />
       )}
 
@@ -441,6 +444,7 @@ export default function App() {
           saveProgress={saveProgress}
           unit={unit}
           triggerFireworks={triggerFireworks}
+          setComboFlash={setComboFlash}
         />
       )}
 
@@ -474,6 +478,7 @@ export default function App() {
           handleUnitComplete={handleUnitComplete}
           streak={streak}
           setStreak={setStreak}
+          setComboFlash={setComboFlash}
         />
       )}
 
@@ -553,10 +558,14 @@ export default function App() {
         </div>
       )}
 
-      {streak >= 2 && (
+      {streak >= 3 && (
         <div style={styles.streak}>
           🔥 {streak} Combo!
         </div>
+      )}
+
+      {comboFlash && (
+        <div style={styles.comboFlash}>🔥 COMBO!</div>
       )}
       
       {showAllUnitsDone && (
@@ -760,5 +769,17 @@ const styles = {
     boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
     fontSize: "20px",
     transition: "all 0.2s ease",
+  },
+
+  comboFlash: {
+    position: "fixed",
+    top: "30%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    fontSize: "28px",
+    fontWeight: "bold",
+    color: "orange",
+    animation: "pop 0.4s ease",
+    zIndex: 2000
   }
 };

@@ -79,7 +79,8 @@ export default function WordAnalogy({
   saveProgress,
   unit,
   streak,
-  setStreak
+  setStreak,
+  setComboFlash
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [step, setStep] = useState(0);
@@ -116,6 +117,8 @@ const current = questions[currentIndex];
         // 🔥 콤보 사운드
         if (next >= 7 && next % 3 === 0) {
           playEffect("combo");
+          setComboFlash(true);          // ⭐ 추가
+          setTimeout(() => setComboFlash(false), 400);
         } else {
           playEffect("correct");
         }
@@ -339,6 +342,7 @@ const styles = {
     marginBottom: "10px",
     background: "#e5e7eb",
     borderRadius: "10px",
+    transition: "width 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
     overflow: "hidden"
   },
 
@@ -351,7 +355,7 @@ const styles = {
     marginTop: "10px",
     marginBottome: "20px",
     fontSzie: "14px",
-    color: "	#ffc60a"
+    color: "#ffc60a"
   },
 
   group: {
@@ -382,7 +386,8 @@ const styles = {
 
   answerBox: {
     marginTop: "15px",
-    textAlign: "center"
+    textAlign: "center",
+    animation: "fadeIn 0.3s ease"
   },
 
   explanation: {

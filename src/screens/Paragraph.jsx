@@ -76,7 +76,8 @@ export default function Paragraph({
   triggerFireworks,
   handleUnitComplete,
   streak,
-  setStreak
+  setStreak,
+  setComboFlash
 }) {
   
   const paragraphUnit = paragraphData[unit];
@@ -190,8 +191,10 @@ const handleWordClick = (word) => {
 
     setStreak(prev => {
       const next = prev + 1;
-      if (next >= 2) {
-        playEffect("combo");   // ⭐ 2부터 계속
+      if (next >= 3) {
+        playEffect("combo");   // ⭐ 3부터 계속
+        setComboFlash(true);          // ⭐ 추가
+        setTimeout(() => setComboFlash(false), 400);
       } else {
         playEffect("correct"); // ⭐ 첫 정답
       }
@@ -458,6 +461,7 @@ const styles = {
     marginBottom: "10px",
     background: "#e5e7eb",
     borderRadius: "10px",
+    transition: "width 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
     overflow: "hidden"
   },
   
@@ -585,7 +589,8 @@ const styles = {
   resultItem: {
     marginBottom: "16px",
     textAlign: "left",
-    lineHeight: "1.8"
+    lineHeight: "1.8",
+    animation: "fadeIn 0.3s ease"
   },
 
 

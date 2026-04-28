@@ -279,6 +279,7 @@ const styles = {
     height: "8px",
     background: "#e5e7eb",
     borderRadius: "10px",
+    transition: "width 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
     overflow: "hidden"
   },
 

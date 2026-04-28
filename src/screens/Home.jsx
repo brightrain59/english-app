@@ -57,7 +57,7 @@ function CircleProgress({ percent }) {
   );
 }
 
-export default function Home({ goUnit, unlockedUnits, progress }) {  
+export default function Home({ goUnit, unlockedUnits, progress }) {
   const unlockAudio = () => {
     const audio = new Audio();
     audio.src = "/sounds/bgm1.mp3";
@@ -65,6 +65,20 @@ export default function Home({ goUnit, unlockedUnits, progress }) {
       audio.pause();   // ⭐ 중요
     }).catch(() => {});
   };
+
+const totalXP = Object.values(progress).reduce((acc, u) => {
+  return acc + (u.words ? 10 : 0)
+             + ((u.classification || u.analogy) ? 10 : 0)
+             + (u.matching ? 10 : 0)
+             + (u.paragraph ? 10 : 0);
+}, 0);
+
+const completedUnits = Object.values(progress).filter(u =>
+  u.words &&
+  (u.classification || u.analogy) &&
+  u.matching &&
+  u.paragraph
+).length;
 
   return (
     <div style={styles.container}>
@@ -85,12 +99,20 @@ export default function Home({ goUnit, unlockedUnits, progress }) {
           boxShadow: "0 10px 25px rgba(0,0,0,0.2)" 
         }} 
       />
-      <p style={{ fontSize: "14px", opacity: 0.8 }}>
+      <p style={{ 
+        fontSize: "14px", 
+        color: "#ffc60a",  
+        opacity: 0.8
+      }}>
         Learn words step by step!
       </p>
+      <div style={styles.statsBox}>
+        <div>🏆 Completed Units: {completedUnits}</div>
+        <div>⭐ Total XP: {totalXP}</div>
+      </div>
       <h2
         style={{ 
-            fontSize: "20px",
+            fontSize: "16px",
             marginTop: "10px",
             marginBottom: "10px" }}>
         Select a Unit
@@ -173,6 +195,16 @@ const styles = {
     alignItems: "center",
     padding: "16px",
     color: "white"
+  },
+
+  statsBox: {
+    background: "rgba(255,255,255,0.2)",
+    padding: "10px 20px",
+    borderRadius: "12px",
+    marginTop: "5px",
+    marginBottom: "10px",
+    textAlign: "center",
+    fontSize: "14px"
   },
 
   card: {

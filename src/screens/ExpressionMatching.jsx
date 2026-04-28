@@ -73,7 +73,8 @@ export default function ExpressionMatching ({
   progress,
   unit,
   saveProgress,
-  triggerFireworks
+  triggerFireworks,
+  setComboFlash
 }) {
   const containerRef = useRef();
   const [selected, setSelected] = useState([]);
@@ -247,6 +248,8 @@ export default function ExpressionMatching ({
       setBestStreak(b => Math.max(b, next));
       if (next === 5) {
         playEffect("combo");
+        setComboFlash(true);          // ⭐ 추가
+        setTimeout(() => setComboFlash(false), 400);        
       }
       return next;
     });
@@ -563,6 +566,7 @@ const styles = {
     marginBottom: "10px",
     background: "#e5e7eb",
     borderRadius: "10px",
+    transition: "width 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
     overflow: "hidden"
   },
 
@@ -645,7 +649,8 @@ const styles = {
     textAlign: "center",
     background: "rgba(255,255,255,0.2)",
     padding: "12px",
-    borderRadius: "10px"
+    borderRadius: "10px",
+    animation: "fadeIn 0.3s ease"
   },
 
   answerEn: {
