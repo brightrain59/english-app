@@ -14,6 +14,15 @@ import Paragraph from "./screens/Paragraph";
 import { paragraphData } from "./data/paragraph";  // ⭐ 추가
 import { playLevelUp, vibrate } from "./utils/feedback";
 
+const SOUND_CONFIG = {
+  bgm: 0.12,
+  click: 0.4,
+  correct: 0.6,
+  wrong: 0.5,
+  combo: 0.7,
+  levelup: 0.8
+};
+
 export default function App() {
   const [screen, setScreen] = useState("home");
   const [unit, setUnit] = useState(1);
