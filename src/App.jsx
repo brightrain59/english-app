@@ -54,7 +54,7 @@ export default function App() {
   const [bgmOn, setBgmOn] = useState(true);
   const bgmRef = useRef(null);
   const [comboFlash, setComboFlash] = useState(false);
-
+  console.log("unit1:", progress[1]);
   useEffect(() => {
     if (!bgmOn) return;
 
@@ -104,7 +104,7 @@ export default function App() {
     analogy: "/sounds/bgm2.mp3",
     matchingIntro: "/sounds/bgm3.mp3",
     matching: "/sounds/bgm3.mp3",
-    paragrphIntro: "/sounds/bgm4.mp3",
+    paragraphIntro: "/sounds/bgm4.mp3",
     paragraph: "/sounds/bgm4.mp3"
   };
 

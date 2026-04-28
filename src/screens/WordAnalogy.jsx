@@ -257,8 +257,9 @@ const current = questions[currentIndex];
                 setTimeout(() => {
                   if (currentIndex === questions.length - 1) {
                     playEffect("levelup");
+                    const type = unit === 2 ? "analogy" : "classification";
                     setAnalogyDone(true);
-                    saveProgress(unit, "analogy");
+                    saveProgress(unit, type);
                     setShowComplete(true);   // ⭐ popup 띄움
                   } else {
                     setCurrentIndex(prev => prev + 1);

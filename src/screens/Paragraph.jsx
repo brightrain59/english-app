@@ -222,14 +222,18 @@ const handleWordClick = (word) => {
     
     const isLast = exercise === paragraphUnit.length - 1;
 
-    if (isLast && !paragraphDone) {
-      setParagraphDone(true);
+    if (isLast) {
+  if (!progress[unit]?.paragraph) {
+    saveProgress(unit, "paragraph");   // ⭐ 한번만 저장
+  }
 
-    if (isPerfect) triggerFireworks();
+  setParagraphDone(true);
 
-    handleUnitComplete(unit);
-      return;
-    }
+  if (isPerfect) triggerFireworks();
+
+  handleUnitComplete(unit);
+  return;
+}
 
     goNext && goNext();   // ⭐ 여기 이동
 

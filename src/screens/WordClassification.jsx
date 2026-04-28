@@ -97,7 +97,7 @@ export default function WordClassification({
 
       if (next >= 7 && next % 3 === 0) {
         playEffect("combo");   // 🔥 콤보
-        setComboFlash(true);          // ⭐ 추가
+        setComboFlash(true);   // ⭐ 추가
         setTimeout(() => setComboFlash(false), 400);
       } else {
         playEffect("correct");
@@ -256,8 +256,9 @@ export default function WordClassification({
                 setTimeout(() => {
                   if (currentIndex === questions.length - 1) {
                     playEffect("levelup");
+                    const type = unit === 2 ? "analogy" : "classification";
                     setClassificationDone(true);
-                    saveProgress(unit, "classification");
+                    saveProgress(unit, type);
                     setShowComplete(true);   // ⭐ popup 띄움
                   } else {
                     setCurrentIndex(prev => prev + 1);
