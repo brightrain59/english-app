@@ -53,7 +53,7 @@ export default function App() {
 
   const newAudio = new Audio(src);
   newAudio.loop = true;
-  newAudio.volume = 0;
+  newAudio.volume = SOUND_CONFIG.bgm;
 
   newAudio.play().catch(() => {});
 
@@ -61,8 +61,8 @@ export default function App() {
   let v = 0;
   const fadeIn = setInterval(() => {
     v += 0.02;
-    newAudio.volume = Math.min(v, 0.15);
-    if (v >= 0.15) clearInterval(fadeIn);
+    newAudio.volume = Math.min(v, 0.12);
+    if (v >= 0.12) clearInterval(fadeIn);
   }, 50);
 
   // 🎵 기존 음악 fade out

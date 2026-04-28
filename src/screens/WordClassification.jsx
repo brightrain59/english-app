@@ -7,12 +7,22 @@ const sounds = {
   click: new Audio("/sounds/click.mp3"),
   correct: new Audio("/sounds/correct.mp3"),
   wrong: new Audio("/sounds/wrong.mp3"),
-  combo: new Audio("/sounds/combo.mp3")
+  combo: new Audio("/sounds/combo.mp3"),
+  levelup: new Audio("/sounds/levelup.mp3")
+};
+
+const SOUND_CONFIG = {
+  bgm: 0.12,
+  click: 0.4,
+  correct: 0.6,
+  wrong: 0.5,
+  combo: 0.7,
+  levelup: 0.8
 };
 
 const playEffect = (name) => {
   const audio = new Audio(`/sounds/${name}.mp3`);
-  audio.volume = 0.6;   // ⭐ BGM보다 크게
+  audio.volume = SOUND_CONFIG[name] || 0.6;
   audio.play();
 };
 
@@ -85,7 +95,7 @@ export default function WordClassification({
     setStreak(prev => {
       const next = prev + 1;
 
-      if (next >= 5) {
+      if (next >= 7 && next % 3 === 0) {
         playEffect("combo");   // 🔥 콤보
       } else {
         playEffect("correct");
@@ -98,7 +108,7 @@ export default function WordClassification({
     setShowAnswer(true);
 
     // ⭐ XP 보너스
-    const bonusXP = 10 + streak * 2;
+    const bonusXP = 10 + Math.floor(streak / 2);
     addXP && addXP(bonusXP);
     addScore && addScore();
 

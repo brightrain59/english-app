@@ -8,11 +8,21 @@ const sounds = {
   correct: new Audio("/sounds/correct.mp3"),
   wrong: new Audio("/sounds/wrong.mp3"),
   combo: new Audio("/sounds/combo.mp3"),
+  levelup: new Audio("/sounds/levelup.mp3")
+};
+
+const SOUND_CONFIG = {
+  bgm: 0.12,
+  click: 0.4,
+  correct: 0.6,
+  wrong: 0.5,
+  combo: 0.7,
+  levelup: 0.8
 };
 
 const playEffect = (name) => {
   const audio = new Audio(`/sounds/${name}.mp3`);
-  audio.volume = 0.6;   // ⭐ BGM보다 크게
+  audio.volume = SOUND_CONFIG[name] || 0.6;
   audio.play();
 };
 
