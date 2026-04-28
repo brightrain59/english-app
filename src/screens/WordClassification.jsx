@@ -84,7 +84,6 @@ export default function WordClassification({
   const [showComplete, setShowComplete] = useState(false);
   const [wrong, setWrong] = useState(false);
   const [shake, setShake] = useState(false);
-  const [resetKey, setResetKey] = useState(0);
   const questions = classificationData[unit];
     if (!questions || !questions[currentIndex]) {
     return <div>데이터 없음</div>;
@@ -129,7 +128,6 @@ export default function WordClassification({
     const words = unitData.words;
 
   return (
-    <div key={resetKey}>
     <div style={styles.container}>
       <div style={styles.progressBar}>
         <div
@@ -305,11 +303,13 @@ export default function WordClassification({
                 e.currentTarget.style.transform = "scale(1)";
               }}
               onClick={() => {
-                setResetKey(prev => prev + 1);
                 setShowComplete(false);
+                setCurrentIndex(0);
                 setStep(0);
                 setSelected(null);
                 setShowAnswer(false);
+                setWrong(false);
+                setShake(false);
               }}
             >
               🔄 Start Again
@@ -317,7 +317,6 @@ export default function WordClassification({
           </div>
         </div>
       )}
-    </div>
     </div>
   );
 }

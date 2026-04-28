@@ -305,9 +305,12 @@ const current = questions[currentIndex];
               }}
               onClick={() => {
                 setShowComplete(false);
+                setCurrentIndex(0);
                 setStep(0);
                 setSelected(null);
                 setShowAnswer(false);
+                setWrong(false);
+                setShake(false);
               }}
             >
               🔄 Start Again

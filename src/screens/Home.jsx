@@ -101,9 +101,10 @@ export default function Home({ goUnit, unlockedUnits, progress }) {
       const p = progress[u.id] || {};
 
       const percent = Math.floor(
-        ((p.classification ? 1 : 0) +
+        ((p.words ? 1 : 0) +
+        (p.classification || p.analogy ? 1 : 0) +   // ⭐ 핵심
         (p.matching ? 1 : 0) +
-        (p.paragraph ? 1 : 0)) / 3 * 100
+        (p.paragraph ? 1 : 0)) / 4 * 100
       );
       const isComplete = percent === 100;
 

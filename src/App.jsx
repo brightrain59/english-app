@@ -138,18 +138,22 @@ export default function App() {
 
   const level = Math.floor(xp / 50) + 1;
   const addXP = () => {
-    setXp((prev) => {
-      const newXP = prev + 10;
-      const newLevel = Math.floor(newXP / 50) + 1;
-        if (newLevel > level) {
-          setShowLevelUp(true);
-          triggerFireworks(1200, 20); // ⭐ 여기로 대체
-          playLevelUp();   // 🔊
-          vibrate([200, 100, 200, 100, 300]); // 📳
-        }
-        return newXP;
-    });
-  };
+  setXp(prevXP => {
+    const newXP = prevXP + 10;
+
+    const prevLevel = Math.floor(prevXP / 80);
+    const nextLevel = Math.floor(newXP / 80);
+
+    if (nextLevel > prevLevel) {
+      setShowLevelUp(true);
+      triggerFireworks(1200, 20);
+      playLevelUp();
+      vibrate([200,100,200]);
+    }
+
+    return newXP;
+  });
+};
   const triggerFireworks = (duration = 1500, count = 25) => {
     const particles = Array.from({ length: count }).map(() => ({
       id: Math.random(),
@@ -161,10 +165,6 @@ export default function App() {
 
     // ⭐ Perfect 효과 ON
     setPerfectEffect(true);
-
-    // 🔊 사운드 강화
-    playLevelUp();
-    vibrate([300, 100, 300]);
 
     setTimeout(() => {
       setConfetti([]);
@@ -206,9 +206,6 @@ export default function App() {
     );
     setStepEffect(true);
     setTimeout(() => setStepEffect(false), 400);
-    // ⭐ 효과 실행
-    playLevelUp();
-    vibrate([200, 100, 200, 100, 300]);
   };
   const isUnitComplete = (unit) => {
     return (
