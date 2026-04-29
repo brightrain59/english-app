@@ -76,8 +76,7 @@ export default function Paragraph({
   triggerFireworks,
   handleUnitComplete,
   streak,
-  setStreak,
-  setComboFlash
+  setStreak
 }) {
   
   const paragraphUnit = paragraphData[unit];
@@ -105,7 +104,7 @@ export default function Paragraph({
         return Array(blanks).fill(null);
       })
     );
-  }
+    }
   }, [exercise]);
 
   const audioRef = useRef(null);
@@ -120,8 +119,6 @@ export default function Paragraph({
   const [rating, setRating] = useState("");
   const [wrong, setWrong] = useState(false);
   const [hadWrongAttempt, setHadWrongAttempt] = useState(false);
-  console.log("OK clicked");
-  console.log("goNext called");
   /* 🎯 선택 */
   const [activeBlank, setActiveBlank] = useState(null);
 
@@ -137,8 +134,8 @@ export default function Paragraph({
   handleWordClick(word);
   };
 
-const handleWordClick = (word) => {
-  if (!activeBlank) return;
+  const handleWordClick = (word) => {
+    if (!activeBlank) return;
 
   const { sIdx, bIdx } = activeBlank;
 
@@ -193,54 +190,39 @@ const handleWordClick = (word) => {
     setStreak(prev => {
       const next = prev + 1;
       if (next >= 3) {
-        playEffect("combo");   // ⭐ 3부터 계속
-        setComboFlash(true);          // ⭐ 추가
-        setTimeout(() => setComboFlash(false), 400);
+        playEffect("combo");
       } else {
         playEffect("correct"); // ⭐ 첫 정답
       }
       return next;
     });
 
-  } else {
-    playEffect("wrong");
-    setFeedback("😢 Check the highlighted blanks!");
-    setShake(true);
-    setWrong(true);
-    setHadWrongAttempt(true);
-    setStreak(0);
-    setResult("wrong");
-
-    setTimeout(() => setShake(false), 500);
-  }
-};
+    } else {
+      playEffect("wrong");
+      setFeedback("😢 Check the highlighted blanks!");
+      setShake(true);
+      setWrong(true);
+      setHadWrongAttempt(true);
+      setStreak(0);
+      setResult("wrong");
+      setTimeout(() => setShake(false), 500);
+    }
+  };
 
   /* 🎯 다음 */
   const handleNext = () => {
     const isPerfect = !wrong;
-
-    setRating(isPerfect ? "🏆 Perfect!" : "👍 Good!");
-    
+    setRating(isPerfect ? "🏆 Perfect!" : "👍 Good!");  
     const isLast = exercise === paragraphUnit.length - 1;
-
-    if (isLast) {
-      if (!progress[unit]?.paragraph) {
-      saveProgress(unit, "paragraph");   // ⭐ 한번만 저장
+      if (isLast) {
+        if (!progress[unit]?.paragraph) {
+          saveProgress(unit, "paragraph");
+        }
+        setParagraphDone(true);
+        if (isPerfect) triggerFireworks();
       }
-    
-    setParagraphDone(true);
-  
-    if (isPerfect) triggerFireworks();
-
-    goNext && goNext();   // ⭐ 여기 이동
-
-    return;
-    }
-    
-    setResult(null);
-    setWrong(false);
-    setShowAnswer(false);
-    setHadWrongAttempt(false);
+    // ⭐ 항상 이동
+    goNext && goNext();
   };
 
   const fillText = (text, answers) => {

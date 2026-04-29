@@ -96,9 +96,10 @@ export default function WordClassification({
       const next = prev + 1;
 
       if (next >= 7 && next % 3 === 0) {
-        playEffect("combo");   // 🔥 콤보
-        setComboFlash(true);   // ⭐ 추가
-        setTimeout(() => setComboFlash(false), 400);
+        playEffect("combo");
+        setComboFlash(false);        // ⭐ 추가
+          setTimeout(() => setComboFlash(true), 10);
+          setTimeout(() => setComboFlash(false), 400);
       } else {
         playEffect("correct");
       }

@@ -250,7 +250,7 @@ export default function App() {
 
   const addScore = () => setScore((s) => s + 10);
 
-  const goNext = () => {
+const goNext = () => {
   const unitLength = paragraphData[unit].length;
 
   setExercise(prev => {
@@ -258,12 +258,16 @@ export default function App() {
 
     if (next < unitLength) {
       return next;
-    } else {
-      setShowUnitComplete(true);
-      return prev;   // ⭐ 핵심 (3으로 증가)
     }
+
+    return prev;   // ⭐ 유지
   });
-};
+
+  // ⭐ 상태 밖에서 popup 처리
+  if (exercise === paragraphData[unit].length - 1) {
+    setShowUnitComplete(true);
+  }
+  };
 
   const handleUnitComplete = (unitId) => {
     setCompletedUnits((prev) => {
@@ -292,7 +296,7 @@ export default function App() {
   };
 
   const handleNext = () => {
-    nextMap[unit]?.();
+    goNext();
   };
 
   return (
@@ -439,7 +443,6 @@ export default function App() {
           saveProgress={saveProgress}
           unit={unit}
           triggerFireworks={triggerFireworks}
-          setComboFlash={setComboFlash}
         />
       )}
 
@@ -473,7 +476,6 @@ export default function App() {
           handleUnitComplete={handleUnitComplete}
           streak={streak}
           setStreak={setStreak}
-          setComboFlash={setComboFlash}
         />
       )}
 
@@ -528,7 +530,6 @@ export default function App() {
                 }}
                 onClick={() => {
                   setShowUnitComplete(false);
-                  setScreen("home");
                   handleUnitComplete(unit);   // ⭐ 여기
                   setScreen("home");
                 }}

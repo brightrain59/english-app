@@ -117,8 +117,9 @@ const current = questions[currentIndex];
         // 🔥 콤보 사운드
         if (next >= 7 && next % 3 === 0) {
           playEffect("combo");
-          setComboFlash(true);          // ⭐ 추가
-          setTimeout(() => setComboFlash(false), 400);
+          setComboFlash(false);        // ⭐ 추가
+            setTimeout(() => setComboFlash(true), 10);
+            setTimeout(() => setComboFlash(false), 400);
         } else {
           playEffect("correct");
         }

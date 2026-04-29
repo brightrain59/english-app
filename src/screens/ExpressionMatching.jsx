@@ -73,8 +73,7 @@ export default function ExpressionMatching ({
   progress,
   unit,
   saveProgress,
-  triggerFireworks,
-  setComboFlash
+  triggerFireworks
 }) {
   const containerRef = useRef();
   const [selected, setSelected] = useState([]);
@@ -247,9 +246,7 @@ export default function ExpressionMatching ({
       const next = prev + 1;
       setBestStreak(b => Math.max(b, next));
       if (next === 5) {
-        playEffect("combo");
-        setComboFlash(true);          // ⭐ 추가
-        setTimeout(() => setComboFlash(false), 400);        
+        playEffect("combo");        
       }
       return next;
     });
