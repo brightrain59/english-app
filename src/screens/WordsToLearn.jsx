@@ -76,8 +76,7 @@ export default function WordsToLearn({
   setWordsDone,
   progress,
   unit,
-  saveProgress,
-  handleNext
+  saveProgress
   }) {
   
   const [index, setIndex] = useState(0);
@@ -235,7 +234,7 @@ return (
             }}
             onClick={() => {
               setShowComplete(false);
-              handleNext();
+              goNext();
             }}
           >
               👉 Next

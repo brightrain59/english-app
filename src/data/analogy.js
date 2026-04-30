@@ -84,7 +84,7 @@ export const analogyData = {
       question: "book : bag  = key : ?",
       answer: "pocket",
       choices: ["ground", "pocket", "room", "table"],
-      explanation: "책이 가방에 있고 열쇠가 주머니에 있다. (물건 ↔ 담는 것)"
+      explanation: "책은 가방에 있고 열쇠는 주머니에 있다. (물건 ↔ 담는 것)"
     },
     {
       question: "food : eat = money : ?",

@@ -284,8 +284,8 @@ const goNext = () => {
     });
   };
 
-  const goClassification = () => setScreen("classification");
-  const goAnalogy = () => setScreen("analogy");
+  const goClassification = () => setScreen("classificationIntro");
+  const goAnalogy = () => setScreen("analogyIntro");
 
   // ⭐ 3️⃣ 여기에 추가 (핵심 위치)
   const nextMap = {
@@ -348,12 +348,11 @@ const goNext = () => {
       {screen === "learn" && (
         <WordsToLearn
           goBack={() => setScreen("start")}
-          goNext={() => setScreen("classificationIntro")}
+          goNext={() => nextMap[unit]?.()}
           setWordsDone={setWordsDone}
           progress={unitProgress}
           saveProgress={saveProgress}
           unit={unit}
-          handleNext={handleNext}
         />
       )}
       
@@ -640,7 +639,7 @@ const styles = {
     left: "50%",
     width: "100%",
     maxWidth: "250px",
-    transform: "translate(-50%, -50%)",
+    transform: "translate(-50%, -20%)",
     background: "#fef3c7",
     padding: "20px",
     borderRadius: "15px",
