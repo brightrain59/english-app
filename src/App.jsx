@@ -120,10 +120,12 @@ export default function App() {
     }
   };
 
-  const unitStructure = {
-    1: ["words", "classification", "matching", "paragraph"],
-    2: ["words", "analogy", "matching", "paragraph"],
-  };
+  const getUnitActivities = (unitId) => [
+    "words",
+    unitId % 2 === 1 ? "classification" : "analogy",
+    "matching",
+    "paragraph"
+  ];
 
   const unitProgress = unitStructure[unit].reduce((acc, key) => {
     const doneMap = {
@@ -183,11 +185,8 @@ export default function App() {
     return next;
     });
   };
-  const getLearningComponent = () => {
-    if (unit === 1) return "classification";
-    if (unit === 2) return "analogy";
-    return "classification";
-  };
+  const getLearningComponent = () =>
+    unit % 2 === 1 ? "classification" : "analogy";
   const saveProgress = (unit, type) => {
     const updated = {
       ...progress,
@@ -288,12 +287,8 @@ const goNext = () => {
   const goAnalogy = () => setScreen("analogyIntro");
 
   // ⭐ 3️⃣ 여기에 추가 (핵심 위치)
-  const nextMap = {
-    1: goClassification,
-    2: goAnalogy,
-    3: goClassification,
-    4: goAnalogy,
-  };
+  const handleAfterWords = () =>
+    unit % 2 === 1 ? setScreen("classificationIntro") : setScreen("analogyIntro");
 
   const handleNext = () => {
     goNext();
