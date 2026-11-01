@@ -123,6 +123,84 @@ export default function App() {
   const unitStructure = {
     1: ["words", "classification", "matching", "paragraph"],
     2: ["words", "analogy", "matching", "paragraph"],
+    3: ["words", "classification", "matching", "paragraph"],
+    4: ["words", "analogy", "matching", "paragraph"],
+    5: ["words", "classification", "matching", "paragraph"],
+    6: ["words", "analogy", "matching", "paragraph"],
+    7: ["words", "classification", "matching", "paragraph"],
+    8: ["words", "analogy", "matching", "paragraph"],
+    9: ["words", "classification", "matching", "paragraph"],
+    10: ["words", "analogy", "matching", "paragraph"],
+    11: ["words", "classification", "matching", "paragraph"],
+    12: ["words", "analogy", "matching", "paragraph"],
+    13: ["words", "classification", "matching", "paragraph"],
+    14: ["words", "analogy", "matching", "paragraph"],
+    15: ["words", "classification", "matching", "paragraph"],
+    16: ["words", "analogy", "matching", "paragraph"],
+    17: ["words", "classification", "matching", "paragraph"],
+    18: ["words", "analogy", "matching", "paragraph"],
+    19: ["words", "classification", "matching", "paragraph"],
+    20: ["words", "analogy", "matching", "paragraph"],
+    21: ["words", "classification", "matching", "paragraph"],
+    22: ["words", "analogy", "matching", "paragraph"],
+    23: ["words", "classification", "matching", "paragraph"],
+    24: ["words", "analogy", "matching", "paragraph"],
+    25: ["words", "classification", "matching", "paragraph"],
+    26: ["words", "analogy", "matching", "paragraph"],
+    27: ["words", "classification", "matching", "paragraph"],
+    28: ["words", "analogy", "matching", "paragraph"],
+    29: ["words", "classification", "matching", "paragraph"],
+    30: ["words", "analogy", "matching", "paragraph"],
+    31: ["words", "classification", "matching", "paragraph"],
+    32: ["words", "analogy", "matching", "paragraph"],
+    33: ["words", "classification", "matching", "paragraph"],
+    34: ["words", "analogy", "matching", "paragraph"],
+    35: ["words", "classification", "matching", "paragraph"],
+    36: ["words", "analogy", "matching", "paragraph"],
+    37: ["words", "classification", "matching", "paragraph"],
+    38: ["words", "analogy", "matching", "paragraph"],
+    39: ["words", "classification", "matching", "paragraph"],
+    40: ["words", "analogy", "matching", "paragraph"],
+    41: ["words", "classification", "matching", "paragraph"],
+    42: ["words", "analogy", "matching", "paragraph"],
+    43: ["words", "classification", "matching", "paragraph"],
+    44: ["words", "analogy", "matching", "paragraph"],
+    45: ["words", "classification", "matching", "paragraph"],
+    46: ["words", "analogy", "matching", "paragraph"],
+    47: ["words", "classification", "matching", "paragraph"],
+    48: ["words", "analogy", "matching", "paragraph"],
+    49: ["words", "classification", "matching", "paragraph"],
+    50: ["words", "analogy", "matching", "paragraph"],
+    51: ["words", "classification", "matching", "paragraph"],
+    52: ["words", "analogy", "matching", "paragraph"],
+    53: ["words", "classification", "matching", "paragraph"],
+    54: ["words", "analogy", "matching", "paragraph"],
+    55: ["words", "classification", "matching", "paragraph"],
+    56: ["words", "analogy", "matching", "paragraph"],
+    57: ["words", "classification", "matching", "paragraph"],
+    58: ["words", "analogy", "matching", "paragraph"],
+    59: ["words", "classification", "matching", "paragraph"],
+    60: ["words", "analogy", "matching", "paragraph"],
+    61: ["words", "classification", "matching", "paragraph"],
+    62: ["words", "analogy", "matching", "paragraph"],
+    63: ["words", "classification", "matching", "paragraph"],
+    64: ["words", "analogy", "matching", "paragraph"],
+    65: ["words", "classification", "matching", "paragraph"],
+    66: ["words", "analogy", "matching", "paragraph"],
+    67: ["words", "classification", "matching", "paragraph"],
+    68: ["words", "analogy", "matching", "paragraph"],
+    69: ["words", "classification", "matching", "paragraph"],
+    70: ["words", "analogy", "matching", "paragraph"],
+    71: ["words", "classification", "matching", "paragraph"],
+    72: ["words", "analogy", "matching", "paragraph"],
+    73: ["words", "classification", "matching", "paragraph"],
+    74: ["words", "analogy", "matching", "paragraph"],
+    75: ["words", "classification", "matching", "paragraph"],
+    76: ["words", "analogy", "matching", "paragraph"],
+    77: ["words", "classification", "matching", "paragraph"],
+    78: ["words", "analogy", "matching", "paragraph"],
+    79: ["words", "classification", "matching", "paragraph"],
+    80: ["words", "analogy", "matching", "paragraph"],
   };
 
   const unitProgress = unitStructure[unit].reduce((acc, key) => {
@@ -183,11 +261,8 @@ export default function App() {
     return next;
     });
   };
-  const getLearningComponent = () => {
-    if (unit === 1) return "classification";
-    if (unit === 2) return "analogy";
-    return "classification";
-  };
+  const getLearningComponent = () =>
+    unit % 2 === 1 ? "classification" : "analogy";
   const saveProgress = (unit, type) => {
     const updated = {
       ...progress,
@@ -288,12 +363,8 @@ const goNext = () => {
   const goAnalogy = () => setScreen("analogyIntro");
 
   // ⭐ 3️⃣ 여기에 추가 (핵심 위치)
-  const nextMap = {
-    1: goClassification,
-    2: goAnalogy,
-    3: goClassification,
-    4: goAnalogy,
-  };
+  const handleAfterWords = () =>
+    unit % 2 === 1 ? setScreen("classificationIntro") : setScreen("analogyIntro");
 
   const handleNext = () => {
     goNext();
