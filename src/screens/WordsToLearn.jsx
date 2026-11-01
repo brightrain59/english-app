@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { playWordText } from "../lib/audio";
 import TopBar from "../components/TopBar";
 import { wordsData } from "../data/words";
 
@@ -26,8 +27,7 @@ const playEffect = (name) => {
 };
 
 function playVoice(unit, file) {
-  const audio = new Audio(`/audio/unit${unit}/${file}`);
-  audio.play().catch(() => {});
+  playWordText(unit, file);
 }
 
 function createRipple(e) {
@@ -112,9 +112,7 @@ export default function WordsToLearn({
     }, 120);
   };
   const playVoice = (word) => {
-    const audio = new Audio(`/audio/unit${unit}/${word}.mp3`);
-    audio.currentTime = 0;
-    audio.play().catch(() => {});
+    playWordText(unit, word);
   };
 
 return (

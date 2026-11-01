@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { playWordText } from "../lib/audio";
 import TopBar from "../components/TopBar";
 import { wordsData } from "../data/words";
 import { classificationData } from "../data/classification";
@@ -27,8 +28,7 @@ const playEffect = (name) => {
 };
 
 function playVoice(unit, file) {
-  const audio = new Audio(`/audio/unit${unit}/${file}`);
-  audio.play().catch(() => {});
+  playWordText(unit, file);
 }
 
 function createRipple(e) {
@@ -257,7 +257,7 @@ export default function WordClassification({
                 setTimeout(() => {
                   if (currentIndex === questions.length - 1) {
                     playEffect("levelup");
-                    const type = unit === 2 ? "analogy" : "classification";
+                    const type = unit % 2 === 0 ? "analogy" : "classification";
                     setClassificationDone(true);
                     saveProgress(unit, type);
                     setShowComplete(true);   // ⭐ popup 띄움

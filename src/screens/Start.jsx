@@ -84,14 +84,8 @@ export default function Start({
 
   const wordUnit = wordsData[unit];
 
-  const activityMap = {
-    1: "Word Classification",
-    2: "Word Analogy",
-    3: "Word Classification",
-    4: "Word Analogy",
-  };
-
-  const activityName = activityMap[unit] || "Word Classification";
+  const isClassification = unit % 2 === 1;   // 홀수 단원 = Word Classification, 짝수 단원 = Word Analogy
+  const activityName = isClassification ? "Word Classification" : "Word Analogy";
   
   return (
     <div style={styles.container}>
@@ -172,11 +166,11 @@ export default function Start({
       </div>
         <MenuButton
           text={
-            progress?.[unit]?.classification
+            (isClassification ? progress?.[unit]?.classification : progress?.[unit]?.analogy)
               ? `✅ ${activityName}`
               : `🧠 ${activityName}`
           }
-          onClick={unit === 1 ? goClassification : goAnalogy}>
+          onClick={isClassification ? goClassification : goAnalogy}>
           <span style={styles.arrow}>❯</span>
         </MenuButton>
         <MenuButton

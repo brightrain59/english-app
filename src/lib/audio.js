@@ -1,3 +1,4 @@
+import { getLoaded } from "./store";
 // 음성 재생 — public/audio/uNNN/ 아래 mp3, 파일이 없으면 브라우저 내장 음성으로 대체.
 const pad = (n, w) => String(n).padStart(w, "0");
 export const AUDIO_BASE = import.meta.env?.VITE_AUDIO_BASE ?? "/audio"; // 나중에 별도 호스팅으로 바꿀 때 .env에서 지정
@@ -42,3 +43,9 @@ export function matchingSentence(stem, option) {
 }
 /** Paragraph 본문에서 [[…]] 표시를 지운 읽기용 문장. */
 export const paragraphReadText = (text) => text.replace(/\[\[([^\]:]+)(?::[^\]]+)?\]\]/g, "$1");
+
+/** 화면에서 단어 글자만 알고 있을 때: 현재 단원에서 wordId를 찾아 재생(대본 규칙의 mp3, 없으면 내장 음성). */
+export function playWordText(unit, text) {
+  const w = getLoaded(unit)?.words.find((x) => x.word === String(text).replace(/\.mp3$/, ""));
+  return play(w ? audioPath.word(unit, w.id) : "", String(text).replace(/\.mp3$/, ""));
+}

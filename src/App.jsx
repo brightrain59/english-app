@@ -11,7 +11,8 @@ import MatchingIntro from "./screens/MatchingIntro";
 import ExpressionMatching from "./screens/ExpressionMatching";
 import ParagraphIntro from "./screens/ParagraphIntro";
 import Paragraph from "./screens/Paragraph";
-import { paragraphData } from "./data/paragraph";  // ⭐ 추가
+import { loadUnit } from "./lib/data";
+import { primeUnit } from "./lib/store";
 import { playLevelUp, vibrate } from "./utils/feedback";
 
 const SOUND_CONFIG = {
@@ -46,7 +47,7 @@ export default function App() {
   const [matchingDone, setMatchingDone] = useState(false);
   const [paragraphDone, setParagraphDone] = useState(false);
   const [completedUnits, setCompletedUnits] = useState([]);
-    const totalUnits = 14; // 👉 실제 Unit 개수로 수정
+    const totalUnits = 80;
   const [showAllUnitsDone, setShowAllUnitsDone] = useState(false);
   const [perfectEffect, setPerfectEffect] = useState(false);
   const [stepEffect, setStepEffect] = useState(false);
@@ -326,7 +327,7 @@ export default function App() {
   const addScore = () => setScore((s) => s + 10);
 
 const goNext = () => {
-  const unitLength = paragraphData[unit].length;
+  const unitLength = 3; // 단원당 세트 3개
 
   setExercise(prev => {
     const next = prev + 1;
@@ -339,7 +340,7 @@ const goNext = () => {
   });
 
   // ⭐ 상태 밖에서 popup 처리
-  if (exercise === paragraphData[unit].length - 1) {
+  if (exercise === 2) {
     setShowUnitComplete(true);
   }
   };
@@ -381,8 +382,11 @@ const goNext = () => {
       {screen === "home" && (
         <Home
           goUnit={(id) => {
-            setUnit(id);
+            loadUnit(id).then((d) => {
+              primeUnit(id, d);
+              setUnit(id);
               setScreen("start");
+            });
           }}
           unlockedUnits={unlockedUnits}
           progress={progress}
@@ -419,7 +423,7 @@ const goNext = () => {
       {screen === "learn" && (
         <WordsToLearn
           goBack={() => setScreen("start")}
-          goNext={() => nextMap[unit]?.()}
+          goNext={() => handleAfterWords()}
           setWordsDone={setWordsDone}
           progress={unitProgress}
           saveProgress={saveProgress}
