@@ -16,20 +16,20 @@ export function stopSpeech() {
   if (typeof speechSynthesis !== "undefined") speechSynthesis.cancel();
 }
 
-function speakFallback(text) {
+function speakFallback(text, rate = 1) {
   if (typeof speechSynthesis === "undefined" || !text) return Promise.resolve();
   return new Promise((res) => {
-    const u = new SpeechSynthesisUtterance(text); u.lang = "en-US"; u.rate = 0.9; u.onend = u.onerror = res;
+    const u = new SpeechSynthesisUtterance(text); u.lang = "en-US"; u.rate = 0.9 * rate; u.onend = u.onerror = res;
     speechSynthesis.speak(u);
   });
 }
 
 /** url의 mp3를 재생. 파일이 없거나 재생 실패 시 fallbackText를 내장 음성으로 읽음. 재생이 끝나면 resolve. */
-export function play(url, fallbackText = "") {
+export function play(url, fallbackText = "", rate = 1) {
   stopSpeech();
   return new Promise((resolve) => {
-    const a = new Audio(url); current = a;
-    const fb = () => { if (current === a) current = null; speakFallback(fallbackText).then(resolve); };
+    const a = new Audio(url); a.playbackRate = rate; current = a;
+    const fb = () => { if (current === a) current = null; speakFallback(fallbackText, rate).then(resolve); };
     a.addEventListener("ended", () => { if (current === a) current = null; resolve(); });
     a.addEventListener("error", fb);
     a.play().catch(fb);

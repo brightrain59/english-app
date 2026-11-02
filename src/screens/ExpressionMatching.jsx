@@ -1,546 +1,218 @@
 import { useState, useRef, useEffect } from "react";
-import { wordsData } from "../data/words";
-import { matchingData } from "../data/matching";
 import TopBar from "../components/TopBar";
+import { getLoaded } from "../lib/store";
+import { tierLabel } from "../lib/data";
+import { play, stopSpeech, audioPath, matchingSentence } from "../lib/audio";
+import { addRecord } from "../lib/records";
+import { saveSetResult, tierForSet } from "../lib/sets";
 
-const sounds = {
-  click: new Audio("/sounds/click.mp3"),
-  correct: new Audio("/sounds/correct.mp3"),
-  wrong: new Audio("/sounds/wrong.mp3"),
-  combo: new Audio("/sounds/combo.mp3"),
-  levelup: new Audio("/sounds/levelup.mp3")
-};
-
-const SOUND_CONFIG = {
-  bgm: 0.12,
-  click: 0.4,
-  correct: 0.6,
-  wrong: 0.5,
-  combo: 0.7,
-  levelup: 0.8
-};
-
+const SOUND_CONFIG = { click: 0.4, correct: 0.6, wrong: 0.5, combo: 0.7, levelup: 0.8 };
 const playEffect = (name) => {
-  const audio = new Audio(`/sounds/${name}.mp3`);
-  audio.volume = SOUND_CONFIG[name] || 0.6;
-  audio.play();
+  try { const a = new Audio(`/sounds/${name}.mp3`); a.volume = SOUND_CONFIG[name] || 0.6; a.play().catch(() => {}); } catch {}
 };
 
-/* 💧 ripple */
 function createRipple(e) {
   try {
-  const button = e.currentTarget;
-  // ⭐ 사운드 먼저 실행 (핵심)
-  playEffect("click");
-
-  const circle = document.createElement("span");
-  const diameter = Math.max(button.clientWidth, button.clientHeight);
-  const radius = diameter / 2;
-
-  circle.style.position = "absolute";
-  circle.style.borderRadius = "50%";
-  circle.style.background = "rgba(88, 204, 2, 0.25)";
-  circle.style.transform = "scale(0)";
-  circle.style.animation = "ripple 0.4s ease-out";
-  circle.style.pointerEvents = "none";
-
-  circle.style.width = circle.style.height = `${diameter}px`;
-  circle.style.left = `${
-    e.clientX - button.getBoundingClientRect().left - radius
-  }px`;
-  circle.style.top = `${
-    e.clientY - button.getBoundingClientRect().top - radius
-  }px`;
-
-  const old = button.querySelector(".ripple");
-    if (old) old.remove();
-
-  circle.classList.add("ripple");
-  button.appendChild(circle);
+    playEffect("click");
+    const button = e.currentTarget;
+    const d = Math.max(button.clientWidth, button.clientHeight);
+    const c = document.createElement("span");
+    Object.assign(c.style, { position: "absolute", borderRadius: "50%", background: "rgba(88,204,2,0.25)", transform: "scale(0)", animation: "ripple 0.4s ease-out", pointerEvents: "none", width: `${d}px`, height: `${d}px` });
+    const r = button.getBoundingClientRect();
+    c.style.left = `${e.clientX - r.left - d / 2}px`; c.style.top = `${e.clientY - r.top - d / 2}px`;
+    button.querySelector(".ripple")?.remove(); c.classList.add("ripple"); button.appendChild(c);
   } catch {}
 }
 
-export default function ExpressionMatching ({ 
-  exercise,
-  goBack,
-  goNext,
-  score,
-  addScore,
-  addXP,
-  level,
-  xp,
-  setMatchingDone,
-  progress,
-  unit,
-  saveProgress,
-  triggerFireworks
+export default function ExpressionMatching({
+  exercise, goBack, goNext, score, addScore, addXP, level, xp,
+  setMatchingDone, progress, unit, saveProgress, triggerFireworks
 }) {
+  const data = getLoaded(unit);
+  const setIdx = Math.min(exercise ?? 0, (data?.matching?.sets.length ?? 1) - 1);
+  const set = data?.matching?.sets[setIdx];
+
   const containerRef = useRef();
-  const [selected, setSelected] = useState([]);
-  const [matched, setMatched] = useState([]);
-  const [feedback, setFeedback] = useState("");
-  const [showAnswer, setShowAnswer] = useState(null);
+  const lastTs = useRef(Date.now());
+  const [tier, setTier] = useState(2);
+  const [afterChallenge, setAfterChallenge] = useState(false);
+  const [round, setRound] = useState(0);            // 같은 세트를 다시 풀 때 증가
+  const [selStem, setSelStem] = useState(null);
+  const [selOpt, setSelOpt] = useState(null);
+  const [matched, setMatched] = useState({});       // stemIdx -> optIdx
+  const [attempts, setAttempts] = useState({});     // stemIdx -> 시도 횟수
+  const [firstTry, setFirstTry] = useState({});     // stemIdx -> 첫 시도 정답 여부
   const [lines, setLines] = useState([]);
-  const [shake, setShake] = useState(false);
   const [wrongLine, setWrongLine] = useState(null);
+  const [shake, setShake] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(null); // stemIdx
   const [stars, setStars] = useState([]);
-  const [currentAudioIndex, setCurrentAudioIndex] = useState(null);
-  const [wrongCount, setWrongCount] = useState(0);
-  const [result, setResult] = useState("");
   const [streak, setStreak] = useState(0);
-  const [bestStreak, setBestStreak] = useState(0);
-  const [showComplete, setShowComplete] = useState(false);
-  const [selectedExercise, setSelectedExercise] = useState(0);
+  const [done, setDone] = useState(null);           // { correct, tier }
 
-  const exercises = matchingData[unit];
-  if (!exercises) {
-  return <div>데이터 없음</div>;
-  }
-  const currentExercise = exercises[selectedExercise];
-
-  // 📦 데이터 보호
-  const safeExercise = Math.min(exercise, exercises.length - 1);
-  const currentSet = exercises[safeExercise];
-
-  const sentences = currentSet.sentences;
-  const options = currentSet.options;
-
-  // 🔄 exercise 변경 시 초기화
+  // 세트가 바뀌면 단계를 새로 정하고 화면을 비움
   useEffect(() => {
-    setSelected([]);
-    setMatched([]);
-    setLines([]);
-    setFeedback("");
-    setShowAnswer(null);
-    setWrongLine(null);
-    setStars([]);
-    setWrongCount(0);
-    setResult("");
-    setStreak(0);
-  }, [exercise]);
-  
-  // 🔊 음성
-  const playSentence = (rate = 1) => {
-    if (currentAudioIndex === null) return;
-    const audio = new Audio(
-      `/audio/unit${unit}/ex${safeExercise + 1}_${currentAudioIndex + 1}.mp3`
-    );
-    audio.playbackRate = rate;
-    audio.play();
+    if (!set) return;
+    stopSpeech();
+    setTier(tierForSet("matching", unit, setIdx, data.diagnostic.kind, set.wordIds));
+    setAfterChallenge(false); setRound(0);
+  }, [setIdx, unit]);
+  useEffect(() => {
+    setSelStem(null); setSelOpt(null); setMatched({}); setAttempts({}); setFirstTry({});
+    setLines([]); setWrongLine(null); setShowAnswer(null); setStars([]); setStreak(0); setDone(null);
+    lastTs.current = Date.now();
+  }, [setIdx, tier, round, unit]);
+
+  if (!data || !set) return <div>Loading...</div>;
+  const t = set.tiers[tier];
+  const total = t.stems.length;
+  const wordOf = (id) => data.words.find((w) => w.id === id);
+  const sentenceOf = (i) => matchingSentence(t.stems[i], t.options[t.pairs[i].option]);
+
+  const center = (el) => {
+    const r = el.getBoundingClientRect(), c = containerRef.current.getBoundingClientRect();
+    return { x: r.left - c.left + r.width / 2, y: r.top - c.top + r.height / 2 };
   };
 
-  const questionIndex = matched.length / 2;
-  
-  // 📍 좌표
-  function getCenter(el) {
-    const rect = el.getBoundingClientRect();
-    const containerRect = containerRef.current.getBoundingClientRect();
+  const evaluate = (i, j) => {
+    const pair = t.pairs[i];
+    const n = (attempts[i] ?? 0) + 1;
+    const ok = pair.option === j;
+    const ms = Date.now() - lastTs.current;
+    addRecord({ wordId: pair.wordId, activity: "matching", tier, correct: ok, attempt: n, ms });
+    setAttempts((a) => ({ ...a, [i]: n }));
+    const e1 = document.querySelector(`[data-id="s${i}"]`), e2 = document.querySelector(`[data-id="o${j}"]`);
+    const p1 = e1 && center(e1), p2 = e2 && center(e2);
 
-    return {
-      x: rect.left - containerRect.left + rect.width / 2,
-      y: rect.top - containerRect.top + rect.height / 2
-    };
-  }
-
-    function getCardColor(item) {
-    if (matched.includes(item)) return "linear-gradient(135deg, #f0e7da, #ffeda8)"; // 정답
-    if (selected.includes(item)) return "#ddd"; // 선택됨
-
-    // 기본 색
-    if (sentences.includes(item)) return "#e0f2fe"; // 🔵 문장
-    return "#fff7ed"; // 🟠 옵션
-  }
-
-  // 🎯 클릭
-  const handleClick = (item, e) => {
-    createRipple(e);
-
-    if (showAnswer) return;
-
-    if (selected.includes(item) || matched.includes(item)) return;
-  
-  const newSelected = [...selected, item];
-  setSelected(newSelected);
-  
-  if (newSelected.length === 2) {
-    const [a, b] = newSelected;
-    
-    const el1 = document.querySelector(`[data-id="${a}"]`);
-    const el2 = document.querySelector(`[data-id="${b}"]`);
-    
-    let p1, p2;
-    if (el1 && el2) {
-      p1 = getCenter(el1);
-      p2 = getCenter(el2);
-    }
-
-    const combined1 = `${a} ${b}`;
-    const combined2 = `${b} ${a}`;
-
-    const correct = currentSet.answers.find(
-      (ans) => ans.en === combined1 || ans.en === combined2
-    );
-
-    if (correct) {
-      // ✅ 오답 선 제거
-      setWrongLine(null);
-
-      // ✅ 정답 선
-      setLines(prev => [...prev, { p1, p2 }]);
-
-      // ✅ 매칭 추가
-      const nextMatched = [...matched, a, b];
-      setMatched(nextMatched);
-      setSelected([]);
-
-      const totalPairs = currentSet.answers.length;
-      const nextPairs = nextMatched.length / 2;
-
-      if (nextPairs === totalPairs) {
-        if (wrongCount === 0) {
-          setResult("🏆 Perfect!");
-      } else {
-        setResult("👍 Good!");
-      }
-    }
-
-      if (nextPairs === totalPairs && wrongCount === 0) {
-        triggerFireworks(); // 🎆 여기!
-      }
-
-      setFeedback("🎉 Great!");
-      setShowAnswer(correct);
-
-      addScore && addScore();
-      addXP && addXP(10 + streak * 2);
-
+    if (ok) {
+      lastTs.current = Date.now();
+      if (p1 && p2) setLines((l) => [...l, { p1, p2 }]);
+      setMatched((m) => ({ ...m, [i]: j }));
+      setFirstTry((f) => (i in f ? f : { ...f, [i]: n === 1 }));
+      setSelStem(null); setSelOpt(null); setWrongLine(null);
+      setShowAnswer(i);
+      addScore && addScore(); addXP && addXP(10 + streak * 2);
       playEffect("correct");
-
-      // 🔊 음성 (idx 방식)
-      const idx =
-        currentSet.sentences.indexOf(a) !== -1
-          ? currentSet.sentences.indexOf(a)
-          : currentSet.sentences.indexOf(b);
-
-      setCurrentAudioIndex(idx);
-
-      setTimeout(() => {
-        const audio = new Audio(
-        `/audio/unit${unit}/ex${safeExercise + 1}_${idx + 1}.mp3`
-        );
-        audio.play().catch(() => {});
-      }, 150);
-
-      // ⭐ 별
-      setStars(prev => [
-        ...prev,
-        ...Array.from({ length: 6 }).map(() => ({
-        id: Math.random(),
-        left: Math.random() * 80 + 10,
-        delay: Math.random() * 0.3
-        }))
-      ]);
-
-    // Streak (Combo)
-    setStreak(prev => {
-      const next = prev + 1;
-      setBestStreak(b => Math.max(b, next));
-      if (next === 5) {
-        playEffect("combo");        
-      }
-      return next;
-    });
-
+      setStreak((s) => { if (s + 1 === 5) playEffect("combo"); return s + 1; });
+      setStars((s) => [...s, ...Array.from({ length: 6 }).map(() => ({ id: Math.random(), left: Math.random() * 80 + 10, delay: Math.random() * 0.3 }))]);
+      setTimeout(() => play(audioPath.matching(unit, set.setNo, tier, i + 1), sentenceOf(i)), 150);
     } else {
-      // ❌ 오답
-      setFeedback("😢 Try again!");
-      playEffect("wrong");
-
-      setShake(true);
-
-      if (p1 && p2) {
-        setWrongLine({ p1, p2 });
-      }
-
-      setTimeout(() => {
-        setShake(false);
-        setWrongLine(null);
-        setSelected([]);   // 🔥 핵심 (멈춤 방지)
-        setFeedback("");
-      }, 500);
-
-      setWrongCount(prev => prev + 1);
-
-      setStreak(0);
-    }
+      setFirstTry((f) => (i in f ? f : { ...f, [i]: false }));
+      playEffect("wrong"); setShake(true); setStreak(0);
+      if (p1 && p2) setWrongLine({ p1, p2 });
+      setTimeout(() => { setShake(false); setWrongLine(null); setSelStem(null); setSelOpt(null); }, 500);
     }
   };
 
-  const answers = currentSet.answers;
-  
-  const wordUnit = wordsData[unit];
-  if (!wordUnit) {
-  return <div>Loading...</div>;
-  }
-  const words = wordUnit.words;
+  const pickStem = (i, e) => {
+    createRipple(e);
+    if (showAnswer !== null || i in matched || shake) return;
+    setSelStem(i);
+    if (selOpt !== null) evaluate(i, selOpt);
+  };
+  const pickOpt = (j, e) => {
+    createRipple(e);
+    if (showAnswer !== null || Object.values(matched).includes(j) || shake) return;
+    setSelOpt(j);
+    if (selStem !== null) evaluate(selStem, j);
+  };
+
+  const finishIfComplete = () => {
+    if (Object.keys(matched).length < total) return false;
+    const correct = Object.values(firstTry).filter(Boolean).length;
+    saveSetResult("matching", unit, setIdx, { tier, correct, afterChallengeUp: afterChallenge });
+    if (correct === total) triggerFireworks && triggerFireworks();
+    setDone({ correct, tier });
+    if (setIdx === data.matching.sets.length - 1) { setMatchingDone(true); saveProgress(unit, "matching"); }
+    return true;
+  };
+
+  const isLast = setIdx === data.matching.sets.length - 1;
+  const cardBg = (kind, idx) => {
+    if (kind === "s" ? idx in matched : Object.values(matched).includes(idx)) return "linear-gradient(135deg, #f0e7da, #ffeda8)";
+    if (kind === "s" ? selStem === idx : selOpt === idx) return "#ddd";
+    return kind === "s" ? "#e0f2fe" : "#fff7ed";
+  };
+  const ai = showAnswer;
 
   return (
-    <div style={{ ...styles.container }}>
+    <div style={styles.container}>
       <div style={styles.progressBar}>
-        <div
-          style={{
-            width: `${progress}%`,  // ⭐ 여기
-            height: "100%",
-            background: "#22c55e",
-            transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)" // ⭐ 여기
-          }}
-        />
+        <div style={{ width: `${progress}%`, height: "100%", background: "#22c55e", transition: "width 0.5s" }} />
+      </div>
+      <TopBar title={data.title} progress={progress} onBack={goBack} score={score} level={level} xp={xp} />
+
+      <div style={styles.starLayer}>
+        {stars.map((s) => (
+          <div key={s.id} style={{ position: "absolute", left: `${s.left}%`, animation: "starBurst 1s ease-out", animationDelay: `${s.delay}s` }}>⭐</div>
+        ))}
       </div>
 
-      <TopBar
-        title={wordUnit.title}
-        progress={progress}
-        onBack={goBack}
-        score={score}
-        level={level}
-        xp={xp}
-      />
+      <h2 style={styles.subtitle}>🔗 Expression Matching, Exercise {setIdx + 1}</h2>
+      <div style={{ fontSize: "12px", opacity: 0.9, marginBottom: "4px" }}>
+        Level: {tierLabel[tier]} ({tier}/3){afterChallenge ? " · Challenge" : ""}
+      </div>
 
-    <div style={styles.starLayer}>
-      {stars.map((s) => (
-        <div
-          key={s.id}
-          style={{
-            position: "absolute",
-            left: `${s.left}%`,
-            animation: `starBurst 1s ease-out`,
-            animationDelay: `${s.delay}s`
-          }}
-        >
-            ⭐
-        </div>
-      ))}
-    </div>
-    
-    <h2 style={styles.subtitle}>🔗 Expression Matching, Exercise {safeExercise + 1}</h2>
-
-    <div style={styles.container}>
       <div style={styles.columnsWrapper} ref={containerRef}>
-
         <svg style={styles.svg}>
-          {lines.map((line, i) => (
-            <path
-            key={i}
-            d={`M ${line.p1.x} ${line.p1.y} 
-            Q ${(line.p1.x + line.p2.x) / 2} ${(line.p1.y + line.p2.y) / 2 - 40} 
-            ${line.p2.x} ${line.p2.y}`}
-            stroke="#9400d3"
-            strokeWidth="2"
-            fill="none"
-            strokeDasharray="300"
-            strokeDashoffset="300"
-            style={{
-              animation: "drawCurve 0.5s forwards"
-            }}
-        />
-        ))}
-          {wrongLine && (
-            <line
-              x1={wrongLine.p1.x}
-              y1={wrongLine.p1.y}
-              x2={wrongLine.p2.x}
-              y2={wrongLine.p2.y}
-              stroke="red"
-              strokeWidth="2"
-              style={{ animation: "flash 0.5s" }}
-            />
-          )}
+          {lines.map((l, i) => (
+            <path key={i} d={`M ${l.p1.x} ${l.p1.y} Q ${(l.p1.x + l.p2.x) / 2} ${(l.p1.y + l.p2.y) / 2 - 40} ${l.p2.x} ${l.p2.y}`}
+              stroke="#9400d3" strokeWidth="2" fill="none" strokeDasharray="300" strokeDashoffset="300" style={{ animation: "drawCurve 0.5s forwards" }} />
+          ))}
+          {wrongLine && <line x1={wrongLine.p1.x} y1={wrongLine.p1.y} x2={wrongLine.p2.x} y2={wrongLine.p2.y} stroke="red" strokeWidth="2" style={{ animation: "flash 0.5s" }} />}
         </svg>
 
         <div style={styles.columns}>
-          {/* 왼쪽: 문장 */}
           <div style={styles.column}>
-            {sentences.map((s) => (
-              <button
-                key={s}
-                data-id={s}
-                style={{
-                  ...styles.card,
-                  ...(shake && selected.includes(s) ? styles.shake : {}),
-                  ...styles.leftCard,
-                 background: getCardColor(s)
-                }}
-                onMouseEnter={(e) =>
-                (e.currentTarget.style.transform = "scale(1.05)")
-                }
-                onMouseLeave={(e) =>
-                (e.currentTarget.style.transform = "scale(1)")
-                }
-                onClick={(e) => handleClick(s, e)}
-      >
-                  {s}
+            {t.stems.map((s, i) => (
+              <button key={i} data-id={`s${i}`} onClick={(e) => pickStem(i, e)}
+                style={{ ...styles.card, background: cardBg("s", i), ...(shake && selStem === i ? styles.shake : {}) }}>
+                {s} …
               </button>
             ))}
           </div>
-
-          {/* 오른쪽: 옵션 */}
           <div style={styles.column}>
-            {options.map((o) => (
-              <button
-                key={o}
-                data-id={o}
-                style={{
-                  ...styles.card,
-                  ...(shake && selected.includes(o) ? styles.shake : {}),
-                  ...styles.rightCard,
-                  background: getCardColor(o)
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.transform = "scale(1.05)")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.transform = "scale(1)")
-                  }
-                  onClick={(e) => handleClick(o, e)}
-              >
-                  {o}
+            {t.options.map((o, j) => (
+              <button key={j} data-id={`o${j}`} onClick={(e) => pickOpt(j, e)}
+                style={{ ...styles.card, background: cardBg("o", j), ...(shake && selOpt === j ? styles.shake : {}) }}>
+                … {o}
               </button>
             ))}
           </div>
         </div>
- 
-        {/* 피드백 */}
-        {feedback && (
-          <p style={{ marginTop: "10px", fontWeight: "bold" }}>
-            {feedback}
-          </p>
-        )}
 
-        {/* 정답 설명 */}
-        {showAnswer && (
+        {ai !== null && (
           <div style={styles.answerBox}>
-            <p style={styles.answerEn}>{showAnswer.en}</p>
-            <p style={styles.answerKo}>{showAnswer.ko}</p>
-
-            {showAnswer.tips.map((t, i) => (
-              <p key={i} style={styles.tip}>💡 {t}</p>
-            ))}
-
+            <p style={styles.feedback}>🎉 Great!</p>
+            <p style={styles.answerEn}>{sentenceOf(ai)}</p>
+            <p style={styles.answerKo}>{t.pairs[ai].ko}</p>
+            <p style={styles.tip}>🎯 {wordOf(t.pairs[ai].wordId)?.word}</p>
             <div style={styles.btnRow}>
-              <button
-                style={styles.repeatBtn}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.transform = "scale(1.05)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.transform = "scale(1)")
-                }
-                onClick={(e) => {
-                  createRipple(e);
-                  playSentence(1);
-                }}
-              >
-                  🔁 Repeat
-              </button>
-
-              <button
-                style={styles.slowBtn}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.transform = "scale(1.05)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.transform = "scale(1)")
-                }
-                onClick={(e) => {
-                  createRipple(e);
-                  playSentence(0.8);
-                }}
-              >
-                  🐢 Slow
-              </button>
-
-	            <button
-		            style={styles.okBtn}
-		            onMouseEnter={(e) =>
-                  (e.currentTarget.style.transform = "scale(1.05)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.transform = "scale(1)")
-                }
-                onClick={(e) => {
-                  createRipple(e);
-                  setShowAnswer(null);
-                  setFeedback("");
-                  setSelected([]);
-
-		              const isComplete =
-			            matched.length === currentSet.answers.length * 2;
-
-		              if (isComplete) {
-                    if (exercise === exercises.length - 1) {
-                      setMatchingDone(true);
-                      saveProgress(unit, "matching");
-                      setShowComplete(true);   // ⭐ 마지막만 popup
-                    } else {
-                      goNext(exercise + 1);    // ⭐ 다음 문제로 이동
-                    }
-                    } else {
-                    setShowAnswer(null);
-                    setFeedback("");
-                    setSelected([]);
-                  }
-                }}
-              >
-                  👍 OK
-	            </button>
+              <button style={styles.repeatBtn} onClick={(e) => { createRipple(e); play(audioPath.matching(unit, set.setNo, tier, ai + 1), sentenceOf(ai)); }}>🔁 Repeat</button>
+              <button style={styles.slowBtn} onClick={(e) => { createRipple(e); play(audioPath.matching(unit, set.setNo, tier, ai + 1), sentenceOf(ai), 0.8); }}>🐢 Slow</button>
+              <button style={styles.okBtn} onClick={(e) => { createRipple(e); stopSpeech(); setShowAnswer(null); finishIfComplete(); }}>👍 OK</button>
             </div>
-
-            {result && (
-              <div style={styles.resultText}>
-                {result}
-              </div>
-            )}
           </div>
         )}
       </div>
+
+      {done && (
+        <div style={styles.popup}>
+          🎆 🎆 🎆
+          <h2 style={{ color: "#333" }}>{done.correct === total ? "🏆 Perfect!" : "👍 Good!"}</h2>
+          <div style={{ color: "#333", fontSize: "14px" }}>First try: {done.correct} / {total}</div>
+          <div style={{ marginTop: "12px", display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap" }}>
+            <button style={styles.mainBtn} onClick={(e) => { createRipple(e); setDone(null); isLast ? goNext() : goNext(setIdx + 1); }}>
+              👉 {isLast ? "Next" : "Next set"}
+            </button>
+            {tier < 3 && (
+              <button style={styles.retryBtn} onClick={(e) => { createRipple(e); setAfterChallenge(true); setTier(tier + 1); }}>⬆ Challenge up</button>
+            )}
+            <button style={styles.retryBtn} onClick={(e) => { createRipple(e); setAfterChallenge(true); setRound((r) => r + 1); }}>🔄 Again</button>
+          </div>
+        </div>
+      )}
     </div>
-
-    {showComplete && (
-    <div style={styles.popup}>
-      🎆 🎆 🎆
-      <div style={styles.sparkle}>✨✨✨</div>
-
-      <h2 style={{ color: "#333" }}>
-        🎉 Matching Complete!
-      </h2>
-
-      <div style={{ marginTop: "15px", display: "flex", gap: "10px", justifyContent: "center" }}>
-        
-      <button
-        style={styles.mainBtn}
-        onClick={(e) => {
-          createRipple(e);
-          setShowComplete(false);
-          goNext();   // 👉 Paragraph 이동
-        }}
-      >
-        👉 Next
-      </button>
-
-      <button
-        style={styles.retryBtn}
-        onClick={(e) => {
-          createRipple(e);
-          setShowComplete(false);
-          goNext(0);
-        }}
-      >
-        🔄 Start Again
-      </button>
-    </div>
-  </div>
-  )}
-  </div>
   );
 }
 
@@ -610,6 +282,8 @@ const styles = {
   },
 
   card: {
+    textAlign: "left",
+    fontSize: "14px",
     padding: "10px 12px",
     borderRadius: "10px",
     border: "none",
@@ -622,8 +296,9 @@ const styles = {
   },
 
   columns: {
-    display: "flex",
-    gap: "20px",
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "16px",
     marginTop: "10px"
   },
 
@@ -641,6 +316,8 @@ const styles = {
     background: "#fff7ed"   // 🟠 옵션
   },
 
+  feedback: { fontWeight: "bold", margin: "0 0 6px" },
+  noteText: { color: "#555", fontSize: "12px", textAlign: "left", marginTop: "10px", lineHeight: 1.5 },
   answerBox: {
     marginTop: "20px",
     textAlign: "center",
