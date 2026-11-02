@@ -121,7 +121,7 @@ const completedUnits = Object.values(progress).filter(u =>
           marginTop: "0",
           letterSpacing: "0.1px"    // ⭐ 추가 (0.5~1.5px 추천)
         }}>
-          <img src="/ladder-student.svg" alt="" style={{ display: "block", height: "96px", margin: "0 auto 6px" }} />Word Ladder 1200
+          <span style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}><img src="/ladder-student.svg" alt="" style={{ height: "64px" }} />Word Ladder 1200</span>
       </h1>
       <img src="/study.png" 
         style={{
