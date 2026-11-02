@@ -47,7 +47,7 @@ export function accessSummary() {
 async function rpc(name, body) {
   const r = await fetch(`${URL_}/rest/v1/rpc/${name}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", apikey: KEY_, Authorization: `Bearer ${KEY_}` },
+    headers: { "Content-Type": "application/json", apikey: KEY_, ...(String(KEY_).startsWith("eyJ") ? { Authorization: `Bearer ${KEY_}` } : {}) },
     body: JSON.stringify(body),
   });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
