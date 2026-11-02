@@ -1,6 +1,7 @@
 export default function TopBar({
   left,
   title,
+  titleSize,
   onBack,
   score,
   progress = 0,
@@ -28,7 +29,7 @@ export default function TopBar({
         )}
 
         {/* 제목 */}
-        <div style={styles.title}>{title}</div>
+        <div style={{ ...styles.title, ...(titleSize ? { fontSize: titleSize, lineHeight: 1.3 } : {}) }}>{title}</div>
 
         {/* 점수 */}
         <div style={styles.score}>{score != null ? `⭐ ${score}` : ""}</div>
