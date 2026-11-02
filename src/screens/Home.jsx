@@ -117,10 +117,11 @@ const completedUnits = Object.values(progress).filter(u =>
           fontSize: "clamp(20px, 6vw, 28px)",
           color: "#fff",
           fontWeight: "bold",
-          marginBottom: "20px",
+          marginBottom: "14px",
+          marginTop: "0",
           letterSpacing: "0.1px"    // ⭐ 추가 (0.5~1.5px 추천)
         }}>
-          🪜 Word Ladder 1200
+          <img src="/ladder-student.svg" alt="" style={{ display: "block", height: "96px", margin: "0 auto 6px" }} />Word Ladder 1200
       </h1>
       <img src="/study.png" 
         style={{
