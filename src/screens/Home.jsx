@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { units, LEVEL_LABEL } from "../data/units";
-import { canOpenUnit, isFreeUnit } from "../lib/access";
+import { canOpenUnit, isFreeUnit, redeemCode, refreshAccess, accessSummary, redeemAvailable, REDEEM_ERRORS } from "../lib/access";
 
 const sounds = {
   click: new Audio("/sounds/click.mp3"),
@@ -68,6 +68,21 @@ export default function Home({ goUnit, unlockedUnits, progress }) {
     try { localStorage.setItem("wl.homeLevel", String(lv)); } catch {}
   };
   const [lockedUnit, setLockedUnit] = useState(null);
+  const [codeOpen, setCodeOpen] = useState(false);
+  const [code, setCode] = useState("");
+  const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [, setTick] = useState(0);
+  useEffect(() => { refreshAccess().then(() => setTick((t) => t + 1)); }, []);
+  const submitCode = async () => {
+    if (!code.trim() || busy) return;
+    setBusy(true); setMsg("");
+    const r = await redeemCode(code);
+    setBusy(false);
+    if (r.ok) { setCode(""); setMsg("✅ 이용권이 등록되었어요!"); setTick((t) => t + 1); }
+    else setMsg(`⚠️ ${REDEEM_ERRORS[r.error] ?? REDEEM_ERRORS.invalid}`);
+  };
+  const owned = accessSummary();
   const levelUnits = units.filter((u) => u.level === level);
   const doneIn = (lv) => units.filter((u) => {
     const p = progress[u.id] || {};
@@ -125,6 +140,9 @@ const completedUnits = Object.values(progress).filter(u =>
         <div>🏆 Completed Units: {completedUnits}</div>
         <div>⭐ Total XP: {totalXP}</div>
       </div>
+      <button style={styles.codeBtn} onClick={() => { setMsg(""); setCodeOpen(true); }}>
+        🎟 이용권 코드 입력
+      </button>
       <h2
         style={{ 
             fontSize: "16px",
@@ -214,16 +232,39 @@ const completedUnits = Object.values(progress).filter(u =>
       </button>
     );
     })}
+      {codeOpen && (
+        <div style={styles.modalBg} onClick={() => setCodeOpen(false)}>
+          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ margin: "0 0 8px", color: "#333" }}>🎟 이용권 코드</h3>
+            {owned.length > 0 && (
+              <div style={{ background: "#f0fdf4", borderRadius: "8px", padding: "8px", marginBottom: "10px", fontSize: "13px", color: "#166534", textAlign: "left" }}>
+                {owned.map((o) => <div key={o.label}>✔ {o.label} · {o.until.toLocaleDateString("ko-KR")}까지</div>)}
+              </div>
+            )}
+            <input
+              value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} onKeyDown={(e) => e.key === "Enter" && submitCode()}
+              placeholder="XXXX-XXXX-XXXX" maxLength={20} autoCapitalize="characters" autoCorrect="off" spellCheck={false}
+              style={{ width: "100%", boxSizing: "border-box", padding: "10px", fontSize: "16px", letterSpacing: "1px", textAlign: "center", borderRadius: "8px", border: "1px solid #ccc", color: "#333" }}
+            />
+            <div style={{ minHeight: "36px", fontSize: "13px", color: "#555", margin: "8px 0" }}>
+              {msg || (redeemAvailable() ? "구매한 이용권 코드를 입력하세요." : "이용권 기능을 준비하고 있어요.")}
+            </div>
+            <button style={styles.modalBtn} disabled={busy} onClick={submitCode}>{busy ? "확인 중…" : "등록"}</button>
+            <button style={{ ...styles.modalBtn, background: "#e5e7eb", marginLeft: "8px" }} onClick={() => setCodeOpen(false)}>닫기</button>
+          </div>
+        </div>
+      )}
       {lockedUnit !== null && (
         <div style={styles.modalBg} onClick={() => setLockedUnit(null)}>
           <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div style={{ fontSize: "28px" }}>🔒</div>
             <h3 style={{ margin: "8px 0", color: "#333" }}>Unit {lockedUnit} · Premium</h3>
             <p style={{ color: "#555", fontSize: "14px", lineHeight: 1.6, margin: "0 0 12px" }}>
-              이 단원은 유료 가입자에게 공개됩니다.<br />
+              이 단원은 이용권 코드가 필요해요.<br />
               지금은 Unit 1, 2, 21, 22, 41, 42, 61, 62를 무료로 체험할 수 있어요.
             </p>
-            <button style={styles.modalBtn} onClick={() => setLockedUnit(null)}>OK</button>
+            <button style={styles.modalBtn} onClick={() => { setLockedUnit(null); setMsg(""); setCodeOpen(true); }}>🎟 코드 입력</button>
+            <button style={{ ...styles.modalBtn, background: "#e5e7eb", marginLeft: "8px" }} onClick={() => setLockedUnit(null)}>닫기</button>
           </div>
         </div>
       )}
@@ -231,6 +272,7 @@ const completedUnits = Object.values(progress).filter(u =>
   );
 }
 const styles = {
+  codeBtn: { marginTop: "6px", padding: "6px 14px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.7)", background: "rgba(255,255,255,0.2)", color: "white", cursor: "pointer", fontSize: "13px" },
   modalBg: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "20px" },
   modal: { background: "#fff", borderRadius: "14px", padding: "20px", maxWidth: "300px", width: "100%", textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.3)" },
   modalBtn: { padding: "8px 24px", borderRadius: "8px", border: "none", background: "linear-gradient(135deg, #ADEBB3, #32CD32)", cursor: "pointer", color: "black" },

@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# 이용권 코드 목록(비공개)
+private/
+.env.local
