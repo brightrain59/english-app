@@ -126,7 +126,7 @@ export default function Paragraph({
       <TopBar title={data.title} onBack={goBack} level={level} xp={xp} score={score} progress={progress} />
 
       <h2 style={{ fontSize: "18px", fontWeight: 500, color: "white", marginTop: "30px", marginBottom: "4px", opacity: 0.9 }}>
-        📝 Words in a Paragraph, Exercise {setIdx + 1}
+        📝 Paragraph Completion, Exercise {setIdx + 1}
       </h2>
       <div style={{ fontSize: "12px", opacity: 0.9 }}>Level: {tierLabel[tier]} ({tier}/3){afterChallenge ? " · Challenge" : ""}</div>
       <div style={styles.subtitle}>{set.title}{set.titleKo ? ` · ${set.titleKo}` : ""}</div>

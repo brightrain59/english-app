@@ -185,8 +185,8 @@ export default function Start({
         <MenuButton
           text={
             progress?.[unit]?.paragraph
-              ? "✅ Words in a Paragraph"
-              : "📝 Words in a Paragraph"
+              ? "✅ Paragraph Completion"
+              : "📝 Paragraph Completion"
           }
           onClick={goParagraph} >
           <span style={styles.arrow}>❯</span>

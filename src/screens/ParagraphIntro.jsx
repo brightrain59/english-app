@@ -88,7 +88,7 @@ export default function ParagraphIntro({ goBack, goNext, unit }) {
           marginTop: "30px",
           marginBottom: "10px",
           opacity: 0.9 }}>
-        📝 Words in a Paragraph
+        📝 Paragraph Completion
       </h2>
 
         {/* 지시문 */}
