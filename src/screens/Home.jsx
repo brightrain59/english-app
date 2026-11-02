@@ -1,4 +1,5 @@
-import { units } from "../data/units";
+import { useState } from "react";
+import { units, LEVEL_LABEL } from "../data/units";
 
 const sounds = {
   click: new Audio("/sounds/click.mp3"),
@@ -58,6 +59,18 @@ function CircleProgress({ percent }) {
 }
 
 export default function Home({ goUnit, unlockedUnits, progress }) {
+  const [level, setLevel] = useState(() => {
+    try { const v = Number(localStorage.getItem("wl.homeLevel")); return v >= 1 && v <= 4 ? v : 1; } catch { return 1; }
+  });
+  const pickLevel = (lv) => {
+    setLevel(lv);
+    try { localStorage.setItem("wl.homeLevel", String(lv)); } catch {}
+  };
+  const levelUnits = units.filter((u) => u.level === level);
+  const doneIn = (lv) => units.filter((u) => {
+    const p = progress[u.id] || {};
+    return u.level === lv && p.words && (p.classification || p.analogy) && p.matching && p.paragraph;
+  }).length;
   const unlockAudio = () => {
     const audio = new Audio();
     audio.src = "/sounds/bgm1.mp3";
@@ -89,7 +102,7 @@ const completedUnits = Object.values(progress).filter(u =>
           marginBottom: "20px",
           letterSpacing: "0.1px"    // ⭐ 추가 (0.5~1.5px 추천)
         }}>
-          🎮 English Vocabulary Fun Master
+          🪜 Word Ladder 1200
       </h1>
       <img src="/study.png" 
         style={{
@@ -104,7 +117,7 @@ const completedUnits = Object.values(progress).filter(u =>
         color: "#ffc60a",  
         opacity: 0.8
       }}>
-        Learn words step by step!
+        English vocabulary, step by step!
       </p>
       <div style={styles.statsBox}>
         <div>🏆 Completed Units: {completedUnits}</div>
@@ -115,10 +128,25 @@ const completedUnits = Object.values(progress).filter(u =>
             fontSize: "16px",
             marginTop: "10px",
             marginBottom: "10px" }}>
-        Select a Unit
+        Select a Level
+      </h2>
+      <div style={styles.tabs}>
+        {[1, 2, 3, 4].map((lv) => (
+          <button
+            key={lv}
+            onClick={() => pickLevel(lv)}
+            style={{ ...styles.tab, ...(lv === level ? styles.tabOn : {}) }}
+          >
+            <div style={{ fontWeight: "bold" }}>Level {lv}</div>
+            <div style={{ fontSize: "11px" }}>{LEVEL_LABEL[lv]} · {doneIn(lv)}/20</div>
+          </button>
+        ))}
+      </div>
+      <h2 style={{ fontSize: "14px", margin: "8px 0 2px" }}>
+        Level {level} · Units {(level - 1) * 20 + 1}–{level * 20}
       </h2>
 
-    {units.map((u) => {
+    {levelUnits.map((u) => {
       const isUnlocked = true;
       const p = progress[u.id] || {};
 
@@ -187,6 +215,9 @@ const completedUnits = Object.values(progress).filter(u =>
   );
 }
 const styles = {
+  tabs: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "6px", width: "100%", maxWidth: "300px" },
+  tab: { padding: "6px 2px", borderRadius: "8px", border: "2px solid rgba(255,255,255,0.5)", background: "rgba(255,255,255,0.15)", color: "white", cursor: "pointer", fontSize: "12px" },
+  tabOn: { background: "white", color: "#1d6fd8", borderColor: "white" },
   container: {
     minHeight: "100vh",
     background: "#4facfe",
