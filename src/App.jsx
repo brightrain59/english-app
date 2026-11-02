@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { canOpenUnit } from "./lib/access";
 import Home from "./screens/Home";
 import Start from "./screens/Start";
 import WordsIntro from "./screens/WordsIntro";
@@ -382,6 +383,7 @@ const goNext = () => {
       {screen === "home" && (
         <Home
           goUnit={(id) => {
+            if (!canOpenUnit(id)) return;   // 유료 단원은 Home에서 막지만, 한 번 더 확인
             loadUnit(id).then((d) => {
               primeUnit(id, d);
               setUnit(id);

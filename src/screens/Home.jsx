@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { units, LEVEL_LABEL } from "../data/units";
+import { canOpenUnit, isFreeUnit } from "../lib/access";
 
 const sounds = {
   click: new Audio("/sounds/click.mp3"),
@@ -66,6 +67,7 @@ export default function Home({ goUnit, unlockedUnits, progress }) {
     setLevel(lv);
     try { localStorage.setItem("wl.homeLevel", String(lv)); } catch {}
   };
+  const [lockedUnit, setLockedUnit] = useState(null);
   const levelUnits = units.filter((u) => u.level === level);
   const doneIn = (lv) => units.filter((u) => {
     const p = progress[u.id] || {};
@@ -147,7 +149,7 @@ const completedUnits = Object.values(progress).filter(u =>
       </h2>
 
     {levelUnits.map((u) => {
-      const isUnlocked = true;
+      const isUnlocked = canOpenUnit(u.id);
       const p = progress[u.id] || {};
 
       const percent = Math.floor(
@@ -171,8 +173,9 @@ const completedUnits = Object.values(progress).filter(u =>
           animation: isComplete ? "shine 1s ease" : "none"
         }}
         onClick={() => {
+          if (!isUnlocked) { setLockedUnit(u.id); return; }
           unlockAudio();
-          isUnlocked && goUnit(u.id);
+          goUnit(u.id);
         
           setTimeout(() => {
             console.log("audio unlocked");
@@ -188,7 +191,7 @@ const completedUnits = Object.values(progress).filter(u =>
       >
         <div style={styles.row}>
           <span>
-            {isUnlocked ? "📘" : "🔒"} Unit {u.id}
+            {isUnlocked ? "📘" : "🔒"} Unit {u.id}{!isFreeUnit(u.id) && !isUnlocked ? " · Premium" : ""}{isFreeUnit(u.id) ? " · Free" : ""}
           </span>
 
           <CircleProgress percent={Math.floor(percent)} />
@@ -211,10 +214,26 @@ const completedUnits = Object.values(progress).filter(u =>
       </button>
     );
     })}
+      {lockedUnit !== null && (
+        <div style={styles.modalBg} onClick={() => setLockedUnit(null)}>
+          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontSize: "28px" }}>🔒</div>
+            <h3 style={{ margin: "8px 0", color: "#333" }}>Unit {lockedUnit} · Premium</h3>
+            <p style={{ color: "#555", fontSize: "14px", lineHeight: 1.6, margin: "0 0 12px" }}>
+              이 단원은 유료 가입자에게 공개됩니다.<br />
+              지금은 Unit 1, 2, 21, 22, 41, 42, 61, 62를 무료로 체험할 수 있어요.
+            </p>
+            <button style={styles.modalBtn} onClick={() => setLockedUnit(null)}>OK</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 const styles = {
+  modalBg: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "20px" },
+  modal: { background: "#fff", borderRadius: "14px", padding: "20px", maxWidth: "300px", width: "100%", textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.3)" },
+  modalBtn: { padding: "8px 24px", borderRadius: "8px", border: "none", background: "linear-gradient(135deg, #ADEBB3, #32CD32)", cursor: "pointer", color: "black" },
   tabs: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "6px", width: "100%", maxWidth: "300px" },
   tab: { padding: "6px 2px", borderRadius: "8px", border: "2px solid rgba(255,255,255,0.5)", background: "rgba(255,255,255,0.15)", color: "white", cursor: "pointer", fontSize: "12px" },
   tabOn: { background: "white", color: "#1d6fd8", borderColor: "white" },
