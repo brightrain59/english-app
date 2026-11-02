@@ -1,3 +1,5 @@
+import { useRef, useLayoutEffect, useState } from "react";
+
 export default function TopBar({
   left,
   title,
@@ -8,6 +10,17 @@ export default function TopBar({
   level,
   xp
 }) {
+  // 제목은 되도록 한 줄: 19px에서 시작해 16px까지 줄여 보고, 그래도 넘치면 18px로 두 줄
+  const titleRef = useRef(null);
+  const [size, setSize] = useState(19);
+  useLayoutEffect(() => {
+    const el = titleRef.current; if (!el) return;
+    let sz = 19; el.style.whiteSpace = "nowrap";
+    while (sz > 16 && el.scrollWidth > el.clientWidth) { sz -= 0.5; el.style.fontSize = sz + "px"; }
+    if (el.scrollWidth > el.clientWidth) { sz = 18; el.style.whiteSpace = "normal"; el.style.fontSize = "18px"; }
+    setSize(sz);
+  }, [title]);
+
   return (
     <div style={styles.wrapper}>
       
@@ -29,7 +42,7 @@ export default function TopBar({
         )}
 
         {/* 제목 */}
-        <div style={{ ...styles.title, ...(titleSize ? { fontSize: titleSize, lineHeight: 1.3 } : {}) }}>{title}</div>
+        <div ref={titleRef} style={{ ...styles.title, fontSize: `${size}px` }}>{title}</div>
 
         {/* 점수 */}
         <div style={styles.score}>{score != null ? `⭐ ${score}` : ""}</div>
@@ -72,7 +85,7 @@ const styles = {
   },
 
   backBtn: {
-    minWidth: "56px",
+    minWidth: "36px",
     textAlign: "left",
     border: "none",
     background: "transparent",
@@ -84,19 +97,21 @@ const styles = {
   title: {
     color: "#fff",
     fontWeight: "bold",
-    fontSize: "16px",
-    textAlign: "center"
+    flex: 1,
+    minWidth: 0,
+    textAlign: "center",
+    lineHeight: 1.3
   },
 
   score: {
     fontSize: "15px",
-    minWidth: "56px",
+    minWidth: "44px",
     textAlign: "right"
   },
 
   progressBg: {
-    height: "8px",
-    background: "#ddd",
+    height: "5px",
+    background: "#ffcf70",   // 연한 골드(오렌지 기운)
     borderRadius: "10px",
     marginTop: "5px"
   },

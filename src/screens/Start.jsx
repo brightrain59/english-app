@@ -89,7 +89,7 @@ export default function Start({
   
   return (
     <div style={styles.container}>
-      <TopBar title={wordUnit.title} titleSize="21px" onBack={goHome} />
+      <TopBar title={wordUnit.title} onBack={goHome} />
 
       <h2
         style={{ 
