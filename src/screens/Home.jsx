@@ -59,6 +59,19 @@ function CircleProgress({ percent }) {
   );
 }
 
+
+function rippleAt(e, color = "rgba(29,111,216,0.28)") {
+  const b = e.currentTarget;
+  const r = b.getBoundingClientRect();
+  const d = Math.max(r.width, r.height);
+  const c = document.createElement("span");
+  c.className = "ripple";
+  c.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d / 2}px;top:${e.clientY - r.top - d / 2}px;background:${color}`;
+  b.querySelector(".ripple")?.remove();
+  b.appendChild(c);
+  setTimeout(() => c.remove(), 450);
+}
+
 export default function Home({ goUnit, unlockedUnits, progress }) {
   const [level, setLevel] = useState(() => {
     try { const v = Number(localStorage.getItem("wl.homeLevel")); return v >= 1 && v <= 4 ? v : 1; } catch { return 1; }
@@ -157,7 +170,9 @@ const completedUnits = Object.values(progress).filter(u =>
         {[1, 2, 3, 4].map((lv) => (
           <button
             key={lv}
-            onClick={() => pickLevel(lv)}
+            onClick={(e) => { rippleAt(e); pickLevel(lv); }}
+            onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.06)")}
+            onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
             style={{ ...styles.tab, ...(lv === level ? styles.tabOn : {}) }}
           >
             <div style={{ fontWeight: "bold" }}>Level {lv}</div>
@@ -195,7 +210,8 @@ const completedUnits = Object.values(progress).filter(u =>
           border: isUnlocked ? "none" : "1px dashed rgba(255,255,255,0.6)",
           animation: isComplete ? "shine 1s ease" : "none"
         }}
-        onClick={() => {
+        onClick={(e) => {
+          rippleAt(e);
           if (!isUnlocked) { setLockedUnit(u.id); return; }
           unlockAudio();
           goUnit(u.id);
@@ -289,7 +305,7 @@ const styles = {
   modal: { background: "#fff", borderRadius: "14px", padding: "20px", maxWidth: "300px", width: "100%", textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.3)" },
   modalBtn: { padding: "8px 24px", borderRadius: "8px", border: "none", background: "linear-gradient(135deg, #ADEBB3, #32CD32)", cursor: "pointer", color: "black" },
   tabs: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "6px", width: "100%", maxWidth: "300px" },
-  tab: { padding: "6px 2px", borderRadius: "8px", border: "2px solid rgba(255,255,255,0.5)", background: "rgba(255,255,255,0.15)", color: "white", cursor: "pointer", fontSize: "12px" },
+  tab: { padding: "6px 2px", borderRadius: "8px", border: "2px solid rgba(255,255,255,0.5)", background: "rgba(255,255,255,0.15)", color: "white", cursor: "pointer", fontSize: "12px", position: "relative", overflow: "hidden", transition: "transform 0.15s ease, background 0.15s" },
   tabOn: { background: "white", color: "#1d6fd8", borderColor: "white" },
   container: {
     minHeight: "100vh",
@@ -319,6 +335,8 @@ const styles = {
     border: "none",
     marginTop: "6px",
     cursor: "pointer",
+    position: "relative",
+    overflow: "hidden",
     transition: "all 0.2s ease"
   },
 
