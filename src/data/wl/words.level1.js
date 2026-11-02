@@ -127,8 +127,8 @@ export const wordsData = {
         "meaning": "타다; 타기",
         "audio": "/audio/ride.mp3",
         "pos": "v / n",
-        "example": "I often ride my bike to school. / We took a long ride on the bus.",
-        "example_ko": "나는 자주 자전거를 타고 학교에 간다. / 우리는 버스를 타고 오래 달렸다."
+        "example": "I often ride my bike to school. / Can you give me a ride home?",
+        "example_ko": "나는 자주 자전거를 타고 학교에 간다. / 나 집까지 차로 데려다 줄 수 있어?"
       },
       {
         "id": 15,
