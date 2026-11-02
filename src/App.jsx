@@ -547,9 +547,7 @@ const goNext = () => {
           saveProgress={saveProgress}
           unit={unit}
           triggerFireworks={triggerFireworks}
-          handleUnitComplete={handleUnitComplete}
-          streak={streak}
-          setStreak={setStreak}
+          addScore={addScore}
         />
       )}
 

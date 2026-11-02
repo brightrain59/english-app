@@ -1,435 +1,188 @@
-import React, { useState, useEffect, useRef } from "react";
-import { wordsData } from "../data/words";
-import { paragraphData } from "../data/paragraph";
+import React, { useState, useEffect, useLayoutEffect, useMemo } from "react";
 import TopBar from "../components/TopBar";
+import { getLoaded } from "../lib/store";
+import { parseBlanks, tierLabel } from "../lib/data";
+import { play, stopSpeech, audioPath, paragraphReadText } from "../lib/audio";
+import { addRecord } from "../lib/records";
+import { saveSetResult, tierForSet } from "../lib/sets";
 
-const sounds = {
-  click: new Audio("/sounds/click.mp3"),
-  correct: new Audio("/sounds/correct.mp3"),
-  wrong: new Audio("/sounds/wrong.mp3"),
-  combo: new Audio("/sounds/combo.mp3"),
-  levelup: new Audio("/sounds/levelup.mp3")
-};
-
-const SOUND_CONFIG = {
-  bgm: 0.12,
-  click: 0.4,
-  correct: 0.6,
-  wrong: 0.5,
-  combo: 0.7,
-  levelup: 0.8
-};
-
+const VOL = { click: 0.4, correct: 0.6, wrong: 0.5, combo: 0.7 };
 const playEffect = (name) => {
-  const audio = new Audio(`/sounds/${name}.mp3`);
-  audio.volume = SOUND_CONFIG[name] || 0.6;
-  audio.play();
+  try { const a = new Audio(`/sounds/${name}.mp3`); a.volume = VOL[name] || 0.6; a.play().catch(() => {}); } catch {}
 };
-
-/* 🔊 학습 음성 */
-function playVoice(unit, file) {
-  const audio = new Audio(`/audio/unit${unit}/${file}`);
-  audio.play().catch(() => {});
-}
-
-/* 💧 ripple */
-function createRipple(e) {
-  const button = e.currentTarget;
-  // ⭐ 사운드 먼저 실행 (핵심)
-  playEffect("click");
-
-  const circle = document.createElement("span");
-  const diameter = Math.max(button.clientWidth, button.clientHeight);
-  const radius = diameter / 2;
-
-  circle.style.position = "absolute";
-  circle.style.borderRadius = "50%";
-  circle.style.background = "rgba(88, 204, 2, 0.25)";
-  circle.style.transform = "scale(0)";
-  circle.style.animation = "ripple 0.4s ease-out";
-  circle.style.pointerEvents = "none";
-
-  const rect = button.getBoundingClientRect();
-  circle.style.width = circle.style.height = `${diameter}px`;
-  circle.style.left = `${e.clientX - rect.left - radius}px`;
-  circle.style.top = `${e.clientY - rect.top - radius}px`;
-
-  const old = button.querySelector(".ripple");
-  if (old) old.remove();
-
-  circle.classList.add("ripple");
-  button.appendChild(circle);
-}
 
 export default function Paragraph({
-  exercise,
-  goBack,
-  goNext,
-  addXP,
-  level,
-  xp,
-  progress,
-  saveProgress,
-  paragraphDone,
-  setParagraphDone,
-  unit,
-  triggerFireworks,
-  handleUnitComplete,
-  streak,
-  setStreak
+  exercise, goBack, goNext, addXP, level, xp, score, progress, saveProgress,
+  setParagraphDone, unit, triggerFireworks, addScore
 }) {
-  
-  const paragraphUnit = paragraphData[unit];
-  const current = paragraphUnit[exercise];
-    if (!paragraphUnit || !current) {
-    return <div>데이터 없음</div>;
-  }
-  const sentences = current.sentences;
-  /* 🧠 상태 */
-  const [answers, setAnswers] = useState([]);
+  const data = getLoaded(unit);
+  const setIdx = Math.min(exercise ?? 0, (data?.paragraph?.sets.length ?? 1) - 1);
+  const set = data?.paragraph?.sets[setIdx];
+
+  const [tier, setTier] = useState(2);
+  const [afterChallenge, setAfterChallenge] = useState(false);
+  const [round, setRound] = useState(0);
+  const [active, setActive] = useState(null);       // 선택한 빈칸 번호
+  const [placed, setPlaced] = useState({});         // 빈칸 번호 -> 칩 번호
+  const [locked, setLocked] = useState({});         // 확인에서 맞은 빈칸
+  const [wrong, setWrong] = useState({});
+  const [checks, setChecks] = useState(0);
+  const [firstTry, setFirstTry] = useState(null);
+  const [shake, setShake] = useState(false);
+  const [done, setDone] = useState(null);
+  const [playing, setPlaying] = useState(false);
+  const [startTs, setStartTs] = useState(Date.now());
 
   useEffect(() => {
-    setParagraphDone(false);
-    setShowAnswer(false);
-    setRating("");        // ⭐ Perfect/Good 초기화
-    setFeedback("");
-    setActiveBlank(null);
-    setResult(null);
-    setWrong(false);
-        
-    if (current?.sentences) {
-    setAnswers(
-      current.sentences.map(s => {
-        const blanks = s.text.split(/_{3,}/).length - 1;
-        return Array(blanks).fill(null);
-      })
-    );
-    }
-  }, [exercise]);
+    if (!set) return;
+    stopSpeech();
+    setTier(tierForSet("paragraph", unit, setIdx, data.diagnostic.kind, set.wordIds));
+    setAfterChallenge(false); setRound(0);
+  }, [setIdx, unit]);
+  useEffect(() => {
+    stopSpeech();
+    setActive(null); setPlaced({}); setLocked({}); setWrong({}); setChecks(0); setFirstTry(null);
+    setDone(null); setPlaying(false); setShake(false); setStartTs(Date.now());
+    setParagraphDone && setParagraphDone(false);
+  }, [setIdx, tier, round, unit]);
 
-  const audioRef = useRef(null);
-    useEffect(() => {
-      audioRef.current = new Audio(`/audio/unit${unit}/paragraph/ex${exercise + 1}.mp3`);
-  }, [exercise]);
+  const t = set?.tiers[tier];
+  const parts = useMemo(() => (t ? parseBlanks(t.text) : []), [t]);
+  const blanks = parts.filter((p) => p.type === "blank");
+  const chips = useMemo(
+    () => blanks.map((b, i) => ({ id: i, text: b.answer })).sort((a, b) => a.text.toLowerCase().localeCompare(b.text.toLowerCase())),
+    [blanks]
+  );
+  if (!data || !set || !t) return <div>Loading...</div>;
 
-  const [feedback, setFeedback] = useState("");
-  const [showAnswer, setShowAnswer] = useState(false);
-  const [shake, setShake] = useState(false);
-  const [result, setResult] = useState(null); 
-  const [rating, setRating] = useState("");
-  const [wrong, setWrong] = useState(false);
-  const [hadWrongAttempt, setHadWrongAttempt] = useState(false);
-  /* 🎯 선택 */
-  const [activeBlank, setActiveBlank] = useState(null);
+  const total = blanks.length;
+  const isLast = setIdx === data.paragraph.sets.length - 1;
+  const usedChips = Object.values(placed);
+  const allFilled = Object.keys(placed).length === total;
+  const canCheck = allFilled && !shake && Object.keys(locked).length < total;
+  // 빈칸 → 단어 id (기본형으로 찾고, 못 찾으면 순서대로)
+  const wordIdOf = (b, i) => data.words.find((w) => set.wordIds.includes(w.id) && w.word.toLowerCase() === b.lemma.toLowerCase())?.id ?? set.wordIds[i];
 
-  const handleBlankClick = (sIdx, bIdx) => {
-    setActiveBlank({ sIdx, bIdx });
+  const clickBlank = (b) => {
+    if (shake || done || locked[b]) return;
+    setWrong({});
+    if (b in placed) { setPlaced(({ [b]: _, ...r }) => r); setActive(b); return; }
+    setActive(b);
+  };
+  const clickChip = (c, e) => {
+    if (shake || done || usedChips.includes(c)) return;
+    playEffect("click");
+    setWrong({});
+    const target = active !== null && !(active in placed) && !locked[active]
+      ? active : [...Array(total).keys()].find((i) => !(i in placed));
+    if (target === undefined) return;
+    setPlaced((p) => ({ ...p, [target]: c }));
+    const next = [...Array(total).keys()].find((i) => i !== target && !(i in placed) && !locked[i]);
+    setActive(next ?? null);
   };
 
-  const handleClick = (word, e) => {
-    createRipple(e);
-
-  if (showAnswer) return;
-
-  handleWordClick(word);
-  };
-
-  const handleWordClick = (word) => {
-    if (!activeBlank) return;
-
-  const { sIdx, bIdx } = activeBlank;
-
-  setAnswers(prev => {
-    const newAnswers = prev.map(arr => [...arr]);
-
-    // 🔥 이미 선택된 단어 제거
-    for (let i = 0; i < newAnswers.length; i++) {
-      const foundIndex = newAnswers[i].indexOf(word);
-      if (foundIndex !== -1) {
-        newAnswers[i][foundIndex] = null;
-      }
-    }
-
-    // 선택한 위치에 넣기
-    newAnswers[sIdx][bIdx] = word;
-
-    return newAnswers;
-  });
-  };
-
-  /* 🎯 전체 정답 체크 */
-  const isAllCorrect = current.sentences.every((s, sIdx) => {
-    // 빈 문장은 패스
-    if (!s.answers || s.answers.length === 0) return true;
-
-    // 배열이 아니면 강제로 배열로 변환
-    const correctAnswers = Array.isArray(s.answers)
-      ? s.answers
-      : [s.answers];
-
-    if (!answers?.[sIdx]) return false;
-
-    return correctAnswers.every((ans, bIdx) => {
-      return answers[sIdx]?.[bIdx] === ans;
+  const check = () => {
+    if (!canCheck) return;
+    const n = checks + 1, ms = Date.now() - startTs; setStartTs(Date.now());
+    const nowLocked = { ...locked }, nowWrong = {}; let right = 0;
+    blanks.forEach((b, i) => {
+      if (locked[i]) return;
+      const ok = chips[chips.findIndex((c) => c.id === placed[i])].text === b.answer;
+      addRecord({ wordId: wordIdOf(b, i), activity: "paragraph", tier, correct: ok, attempt: n, ms });
+      if (ok) { nowLocked[i] = true; right++; addScore && addScore(); addXP && addXP(10); } else nowWrong[i] = true;
     });
-  });
-
-  /* 🎯 채점 */
-  const handleCheck = () => {
-  if (isAllCorrect) {
-    playEffect("correct");
-    setFeedback("🎉 Great!");
-    setShowAnswer(true);
-    setResult("correct");
-
-    const isPerfect = !hadWrongAttempt;
-    setRating(isPerfect ? "Perfect! 🏆" : "Good! 👍");
-
-    addXP && addXP(20 + streak * 2);
-
-    setStreak(prev => {
-      const next = prev + 1;
-      if (next >= 3) {
-        playEffect("combo");
-      } else {
-        playEffect("correct"); // ⭐ 첫 정답
-      }
-      return next;
-    });
-
+    setChecks(n); setLocked(nowLocked);
+    if (n === 1) setFirstTry(right);
+    if (!Object.keys(nowWrong).length) {
+      playEffect("correct");
+      const correct = n === 1 ? right : firstTry;
+      saveSetResult("paragraph", unit, setIdx, { tier, correct, afterChallengeUp: afterChallenge });
+      if (correct === total) triggerFireworks && triggerFireworks();
+      if (isLast) { saveProgress(unit, "paragraph"); setParagraphDone && setParagraphDone(true); }
+      setDone({ correct });
     } else {
-      playEffect("wrong");
-      setFeedback("😢 Check the highlighted blanks!");
-      setShake(true);
-      setWrong(true);
-      setHadWrongAttempt(true);
-      setStreak(0);
-      setResult("wrong");
-      setTimeout(() => setShake(false), 500);
+      playEffect("wrong"); setWrong(nowWrong); setShake(true);
+      setTimeout(() => {
+        setPlaced((p) => Object.fromEntries(Object.entries(p).filter(([i]) => !nowWrong[i])));
+        setWrong({}); setShake(false);
+        setActive(Number(Object.keys(nowWrong)[0]));
+      }, 1100);
     }
   };
 
-  /* 🎯 다음 */
-  const handleNext = () => {
-    const isPerfect = !wrong;
-    setRating(isPerfect ? "🏆 Perfect!" : "👍 Good!");  
-    const isLast = exercise === paragraphUnit.length - 1;
-      if (isLast) {
-        if (!progress[unit]?.paragraph) {
-          saveProgress(unit, "paragraph");
-        }
-        setParagraphDone(true);
-        if (isPerfect) triggerFireworks();
-      }
-    // ⭐ 항상 이동
-    goNext && goNext();
+  const listen = async () => {
+    if (playing) { stopSpeech(); setPlaying(false); return; }
+    setPlaying(true);
+    await play(audioPath.paragraph(unit, set.setNo, tier), paragraphReadText(t.text));
+    setPlaying(false);
   };
 
-  const fillText = (text, answers) => {
-    if (!answers || answers.length === 0) return text;
-
-    let i = 0;
-    return text.replace(/_{3,}/g, () => answers[i++] || "");
-  };
-
-  const fullText = current.sentences
-    .map(s => fillText(s.text, s.answers))
-    .join(" ");
-
-  const fullKo = current.sentences
-    .map(s => s.ko)
-    .join(" ");
-
-  const handleListen = () => {
-  const audio = audioRef.current;
-  if (!audio) return;
-
-  audio.pause();
-  audio.currentTime = 0;
-  audio.playbackRate = 1;
-  audio.play();
-};
-
-  const handleSlow = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    audio.pause();
-    audio.currentTime = 0;
-    audio.playbackRate = 0.8;
-    audio.play();
-  };
-  
-  const wordUnit = wordsData[unit];
-  if (!wordUnit) {
-  return <div>Loading...</div>;
-  }
-  const words = wordUnit.words;
-
+  let bi = -1;
   return (
     <div style={styles.container}>
       <div style={styles.progressBar}>
-        <div
-          style={{
-            width: `${progress}%`,  // ⭐ 여기
-            height: "100%",
-            background: "#22c55e",
-            transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)" // ⭐ 여기
-          }}
-        />
+        <div style={{ width: `${progress}%`, height: "100%", background: "#22c55e", transition: "width 0.5s" }} />
       </div>
-      <TopBar
-        title={wordUnit.title}
-        onBack={goBack}
-        level={level}
-        xp={xp}
-        progress={progress}
-      />
+      <TopBar title={data.title} onBack={goBack} level={level} xp={xp} score={score} progress={progress} />
 
-      <h2
-        style={{ 
-          fontSize: "18px",
-          fontWeight: "500",
-          color: "white",
-          marginTop: "30px",
-          marginBottom: "10px",
-          opacity: 0.9 }}>
-        📝 Words in a Paragraph
+      <h2 style={{ fontSize: "18px", fontWeight: 500, color: "white", marginTop: "30px", marginBottom: "4px", opacity: 0.9 }}>
+        📝 Words in a Paragraph, Exercise {setIdx + 1}
       </h2>
+      <div style={{ fontSize: "12px", opacity: 0.9 }}>Level: {tierLabel[tier]} ({tier}/3){afterChallenge ? " · Challenge" : ""}</div>
+      <div style={styles.subtitle}>{set.title}{set.titleKo ? ` · ${set.titleKo}` : ""}</div>
 
-      <div style={styles.subtitle}>
-        {current.title}
-      </div>
-
-      {/* 🔥 단락 전체 */}
       <div style={styles.paragraph}>
-        {current.sentences.map((s, sIdx) => {
-          const parts = s.text.split(/_{3,}/);
-            return (
-              <span key={sIdx}>
-                {parts.map((part, i) => {
-                  const word = answers[sIdx]?.[i];
-                  const isCorrect =
-                  s.answers?.[i] === word;
-
-            return (
-            <React.Fragment key={i}>
-              {part}
-
-              {i < parts.length - 1 && (
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleBlankClick(sIdx, i);
-                  }}
-                  style={{
-                    ...styles.blank,
-
-                    // ⭐ 선택된 빈칸 강조
-                    ...(activeBlank?.sIdx === sIdx &&
-                    activeBlank?.bIdx === i
-                      ? styles.blankActive
-                      : {}),
-
-                    // ⭐ 실시간 정답/오답 색상
-                    ...(word
-                      ? isCorrect
-                        ? styles.correctLive
-                        : styles.wrongLive
-                      : {})
-                  }}
-                >
-                  <span style={styles.word}>
-                    {word || ""}
-                  </span>
-                </span>
-              )}
-            </React.Fragment>
+        {parts.map((p, k) => {
+          if (p.type === "text") return <React.Fragment key={k}>{p.value}</React.Fragment>;
+          const b = ++bi, chip = placed[b] !== undefined ? chips.find((c) => c.id === placed[b]) : null;
+          const style = { ...styles.blank,
+            ...(active === b && !chip ? styles.blankActive : {}),
+            ...(locked[b] ? styles.correctLive : wrong[b] ? styles.wrongLive : {}) };
+          return (
+            <span key={k} data-blank={b} onClick={() => clickBlank(b)} style={style}>
+              <span style={styles.word}>{done ? p.answer : chip?.text ?? ""}</span>
+            </span>
           );
         })}
-
-        {" "}
-      </span>
-    );
-  })}
-</div>
-
-      {/* 🔥 선택지 */}
-      <div style={styles.choices}>
-        {[
-          ...new Set(
-            current.sentences.flatMap(s => s.choices || [])
-          )
-        ].map(word => (
-          <button
-            key={word}
-            style={{
-              ...styles.choiceBtn,
-              ...(shake ? styles.shake : {})
-            }}
-            onClick={(e) => {
-              playEffect("click");
-              handleClick(word, e)}}
-          >
-            {word}
-          </button>
-        ))}
       </div>
 
-      {/* 🔥 피드백 */}
-      {feedback && <p>{feedback}</p>}
-
-      {/* 🔥 버튼 */}
-      {!showAnswer ? (
-        <button style={styles.checkBtn} onClick={handleCheck}>
-          Check All ✔
-        </button>
-      ) : (
-        <div style={styles.resultBox}>
-
-          {/* 영어 전체 */}
-          <div style={styles.resultEn}>
-            {fullText}
-          </div>
-
-          {/* 한국어 전체 */}
-          <div style={styles.resultKo}>
-            {current.sentences
-              .map(s => s.ko)
-              .join(" ")}
-          </div>
-
-          {/* 팁 */}
-          <ul style={styles.resultTips}>
-            {[...new Set(current.sentences.flatMap(s => s.tips || []))]
-              .map((tip, idx) => (
-              <li key={idx}>💡 {tip}</li>
+      {!done && (
+        <>
+          <div style={styles.choices}>
+            {chips.map((c) => (
+              <button key={c.id} style={{ ...styles.choiceBtn, ...(usedChips.includes(c.id) ? styles.chipUsed : {}) }} onClick={(e) => clickChip(c.id, e)}>
+                {c.text}
+              </button>
             ))}
-          </ul>
+          </div>
+          <div style={styles.hint}>
+            {shake ? "😢 빨간 빈칸을 다시 채워 보세요." : allFilled ? "Check를 눌러 확인하세요." : "빈칸을 누르고, 아래 단어를 골라 넣으세요."}
+          </div>
+          <button style={{ ...styles.checkBtn, padding: "10px 28px", opacity: canCheck ? 1 : 0.45 }} disabled={!canCheck} onClick={check}>✔ Check</button>
+        </>
+      )}
+
+      {done && (
+        <div style={styles.resultBox}>
+          <div style={styles.ratingText}>{done.correct === total ? "🏆 Perfect!" : "👍 Good!"} · First check: {done.correct} / {total}</div>
+          <div style={styles.resultKo}>{t.ko}</div>
+          {t.glossary?.length > 0 && (
+            <div style={styles.gloss}>📖 {t.glossary.map((g) => `${g.en} = ${g.ko}`).join(" · ")}</div>
+          )}
           <div style={styles.resultButtons}>
-            <button style={styles.btnListen} onClick={handleListen}>
-              🔊 Listen
-            </button>
-
-            <button style={styles.btnSlow} onClick={handleSlow}>
-              🐢 Slow
-            </button>
-
-            <button style={styles.btnOk} onClick={handleNext}>
-              👍 OK
-            </button>
+            <button style={styles.btnListen} onClick={listen}>{playing ? "⏹ Stop" : "🔊 Listen"}</button>
+          </div>
+          <div style={{ ...styles.resultButtons, flexWrap: "wrap" }}>
+            <button style={styles.btnOk} onClick={() => { stopSpeech(); goNext && goNext(); }}>👉 {isLast ? "Finish" : "Next set"}</button>
+            {tier < 3 && <button style={styles.btnSlow} onClick={() => { setAfterChallenge(true); setTier(tier + 1); }}>⬆ Challenge up</button>}
+            <button style={styles.btnSlow} onClick={() => { setAfterChallenge(true); setRound((r) => r + 1); }}>🔄 Again</button>
           </div>
         </div>
       )}
-                
-      <div style={styles.ratingText}>
-        {rating}
-      </div>
     </div>
   );
 }
 
-/* 🎨 스타일 */
 const styles = {
   container: {
     minHeight: "100vh",
@@ -636,6 +389,9 @@ const styles = {
     transition: "0.15s"
  },
 
+  chipUsed: { opacity: 0.35, cursor: "default" },
+  gloss: { fontSize: "12px", color: "#fff", opacity: 0.95, marginTop: "6px", textAlign: "left", lineHeight: 1.6 },
+  hint: { fontSize: "13px", minHeight: "20px", margin: "8px 0", textAlign: "center" },
   ratingText: {
     marginTop: "10px",
     fontSize: "18px",

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import TopBar from "../components/TopBar";
 import { wordsData } from "../data/words";
-import { paragraphData } from "../data/paragraph";
 
 const sounds = {
   click: new Audio("/sounds/click.mp3"),
