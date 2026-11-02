@@ -100,7 +100,7 @@ export default function Start({
         Table of Contents
       </h2>
 
-      {/* Words to Learn */}
+      {/* Preview */}
       <div style={styles.menu}>
         <div>
         <button
@@ -120,7 +120,7 @@ export default function Start({
             e.currentTarget.style.boxShadow = "0 6px 15px rgba(0,0,0,0.2)";
           }}
         >
-          <span style={styles.text}> 📖 Words to Learn</span>
+          <span style={styles.text}> 📖 Preview</span>
           <span 
             style={{
               ...styles.arrow, 

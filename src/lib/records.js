@@ -15,3 +15,12 @@ export function diagnosticScore(wordIds, activity) {
   for (const r of unitRecords(wordIds, activity)) if (r.attempt === 1) first.set(r.wordId, r.correct);
   return first.size ? [...first.values()].filter(Boolean).length : null;
 }
+
+// "헷갈려요" 표시한 단어(Preview에서 ⭐). 나중에 복습 목록에 씁니다.
+const FLAG_KEY = "wl.flags.v1";
+export const getFlags = () => safe(() => JSON.parse(localStorage.getItem(FLAG_KEY) ?? "{}"), {});
+export function toggleFlag(wordId) {
+  const f = getFlags(); if (f[wordId]) delete f[wordId]; else f[wordId] = new Date().toISOString();
+  safe(() => localStorage.setItem(FLAG_KEY, JSON.stringify(f)));
+  return f;
+}

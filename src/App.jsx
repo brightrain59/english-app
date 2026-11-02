@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import Home from "./screens/Home";
 import Start from "./screens/Start";
 import WordsIntro from "./screens/WordsIntro";
-import WordsToLearn from "./screens/WordsToLearn";
+import Preview from "./screens/Preview";
 import ClassificationIntro from "./screens/ClassificationIntro";
 import WordClassification from "./screens/WordClassification";
 import AnalogyIntro from "./screens/AnalogyIntro";
@@ -421,7 +421,7 @@ const goNext = () => {
       )}
 
       {screen === "learn" && (
-        <WordsToLearn
+        <Preview
           goBack={() => setScreen("start")}
           goNext={() => handleAfterWords()}
           setWordsDone={setWordsDone}

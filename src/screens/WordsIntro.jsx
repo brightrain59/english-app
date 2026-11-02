@@ -87,14 +87,17 @@ export default function WordsIntro
           marginTop: "30px",
           marginBottom: "10px",
           opacity: 0.9 }}>
-        📖 Words to Learn
+        📖 Preview
       </h2>
 
       {/* 지시문 */}
       <p style={styles.instruction}>
-        이번에 학습할 단어를 얼마나 알고 있나요?<br />
-        단어의 발음과 의미를 알면 <b>‘I know’</b>,<br />
-        모르면 <b>‘I don’t know’</b> 버튼을 클릭하세요.
+        이번 단원에서 배울 단어를 미리 살펴봅니다.<br />
+        단어를 눌러 <b>뜻과 예문</b>을 확인하고,<br />
+        🔊 버튼으로 <b>단어와 예문의 발음</b>을 들어 보세요.<br />
+        {unit <= 20
+          ? "헷갈리는 단어는 ⭐로 표시해 두세요."
+          : "카드를 한 번 누르면 뜻과 예문, 한 번 더 누르면 예문 번역이 나와요. 헷갈리는 단어는 ⭐로 표시해 두세요."}
       </p>
 
       <p style={{ fontSize: "14px", opacity: 0.9 }}>
