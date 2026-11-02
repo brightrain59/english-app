@@ -123,7 +123,7 @@ export default function ClassificationIntro
 const styles = {
   container: {
     minHeight: "100vh",
-    background: "linear-gradient(to bottom, #4facfe, #00c6ff)",
+    background: "transparent",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -139,9 +139,9 @@ const styles = {
   },
 
   instruction: {
-    color: "#333",
-    fontSize: "14px",
-    lineHeight: "1.6",
+    color: "#fff",
+    fontSize: "16px",
+    lineHeight: "1.8",
     marginTop: "20px",
     marginBottom: "10px"
   },
@@ -155,13 +155,13 @@ const styles = {
   },
 
   startBtn: {
-    height: "24px",
-    padding: "0 24px",
+    height: "44px",
+    padding: "0 36px",
     borderRadius: "6px",
     border: "none",
     background: "linear-gradient(135deg, #ADEBB3, #32CD32)",
     color: "black",
-    fontSize: "12px",
+    fontSize: "17px",
     cursor: "pointer",
     marginTop: "10px",
     position: "relative",

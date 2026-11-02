@@ -140,10 +140,10 @@ export default function Preview({ goBack, goNext, setWordsDone, progress, unit, 
 }
 
 const S = {
-  container: { minHeight: "100vh", background: "linear-gradient(to bottom, #4facfe, #00c6ff)", display: "flex", flexDirection: "column", alignItems: "center", padding: 20, color: "white" },
+  container: { minHeight: "100vh", background: "transparent", display: "flex", flexDirection: "column", alignItems: "center", padding: 20, color: "white" },
   h2: { fontSize: 18, fontWeight: 500, color: "white", marginTop: 30, marginBottom: 10, opacity: 0.9 },
   ko: { fontSize: 13, opacity: 0.85, marginLeft: 6 },
-  instruction: { color: "#333", fontSize: 14, lineHeight: 1.6, marginTop: 10, marginBottom: 10, textAlign: "center" },
+  instruction: { color: "#fff", fontSize: 16, lineHeight: 1.6, marginTop: 10, marginBottom: 10, textAlign: "center" },
   count: { fontSize: 14, marginBottom: 12 },
   grid: { boxSizing: "border-box", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, width: "100%", maxWidth: 380 },
   chip: { background: "#fff", color: "#111", border: "none", borderRadius: 10, padding: "12px 6px", fontSize: 15, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, boxShadow: "0 4px 10px rgba(0,0,0,0.15)" },

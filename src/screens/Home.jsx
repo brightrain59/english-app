@@ -114,7 +114,8 @@ const completedUnits = Object.values(progress).filter(u =>
     <div style={styles.container}>
       <h1 
         style={{ 
-          fontSize: "clamp(12px, 4vw, 26px)",
+          fontSize: "clamp(20px, 6vw, 28px)",
+          color: "#fff",
           fontWeight: "bold",
           marginBottom: "20px",
           letterSpacing: "0.1px"    // ⭐ 추가 (0.5~1.5px 추천)
@@ -131,8 +132,8 @@ const completedUnits = Object.values(progress).filter(u =>
       />
       <p style={{ 
         fontSize: "14px", 
-        color: "#ffc60a",  
-        opacity: 0.8
+        color: "#ffd84d",
+        fontSize: "15px"
       }}>
         English vocabulary, step by step!
       </p>
@@ -145,7 +146,8 @@ const completedUnits = Object.values(progress).filter(u =>
       </button>
       <h2
         style={{ 
-            fontSize: "16px",
+            fontSize: "18px",
+            color: "#fff",
             marginTop: "10px",
             marginBottom: "10px" }}>
         Select a Level
@@ -162,7 +164,7 @@ const completedUnits = Object.values(progress).filter(u =>
           </button>
         ))}
       </div>
-      <h2 style={{ fontSize: "14px", margin: "8px 0 2px" }}>
+      <h2 style={{ fontSize: "15px", color: "#fff", margin: "10px 0 2px" }}>
         Level {level} · Units {(level - 1) * 20 + 1}–{level * 20}
       </h2>
 
@@ -183,11 +185,13 @@ const completedUnits = Object.values(progress).filter(u =>
         key={u.id}
         style={{
           ...styles.card,
-          background: isUnlocked
-            ? isComplete
+          background: !isUnlocked
+            ? "rgba(255,255,255,0.22)"
+            : isComplete
             ? "#d9f99d"
-            : "white"
-            : "#ccc",
+            : "white",
+          color: isUnlocked ? "#111" : "#fff",
+          border: isUnlocked ? "none" : "1px dashed rgba(255,255,255,0.6)",
           animation: isComplete ? "shine 1s ease" : "none"
         }}
         onClick={() => {
@@ -208,15 +212,20 @@ const completedUnits = Object.values(progress).filter(u =>
         }
       >
         <div style={styles.row}>
-          <span>
-            {isUnlocked ? "📘" : "🔒"} Unit {u.id}{!isFreeUnit(u.id) && !isUnlocked ? " · Premium" : ""}{isFreeUnit(u.id) ? " · Free" : ""}
+          <span style={{ textAlign: "left", minWidth: 0 }}>
+            <div style={{ fontWeight: 600, fontSize: "15px" }}>
+              {isUnlocked ? "📘" : "🔒"} Unit {u.id}
+              {isFreeUnit(u.id) && <span style={styles.freeTag}>FREE</span>}
+              {!isUnlocked && <span style={styles.premTag}>Premium</span>}
+            </div>
+            <div style={{ fontSize: "13px", opacity: 0.85, marginTop: "2px" }}>{u.title}</div>
           </span>
 
-          <CircleProgress percent={Math.floor(percent)} />
+          {isUnlocked && <CircleProgress percent={Math.floor(percent)} />}
         </div>
 
         {/* 진행바 */}
-        <div style={styles.progressBg}>
+        {isUnlocked && <div style={styles.progressBg}>
           <div
             style={{
               
@@ -224,7 +233,7 @@ const completedUnits = Object.values(progress).filter(u =>
               width: `${percent}%`
             }}
           />
-        </div>
+        </div>}
 
         {isComplete && (
           <div style={styles.complete}>🏆 Complete!</div>
@@ -272,6 +281,8 @@ const completedUnits = Object.values(progress).filter(u =>
   );
 }
 const styles = {
+  freeTag: { marginLeft: "8px", padding: "1px 7px", borderRadius: "999px", background: "#16a34a", color: "#fff", fontSize: "11px", fontWeight: 700, verticalAlign: "middle" },
+  premTag: { marginLeft: "8px", padding: "1px 7px", borderRadius: "999px", background: "rgba(255,255,255,0.3)", color: "#fff", fontSize: "11px", verticalAlign: "middle" },
   codeBtn: { marginTop: "6px", padding: "6px 14px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.7)", background: "rgba(255,255,255,0.2)", color: "white", cursor: "pointer", fontSize: "13px" },
   modalBg: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "20px" },
   modal: { background: "#fff", borderRadius: "14px", padding: "20px", maxWidth: "300px", width: "100%", textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.3)" },
@@ -281,7 +292,7 @@ const styles = {
   tabOn: { background: "white", color: "#1d6fd8", borderColor: "white" },
   container: {
     minHeight: "100vh",
-    background: "#4facfe",
+    background: "transparent",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -301,9 +312,9 @@ const styles = {
 
   card: {
     width: "100%",
-    maxWidth: "300px",
-    padding: "8px",
-    borderRadius: "8px",
+    maxWidth: "340px",
+    padding: "10px 12px",
+    borderRadius: "10px",
     border: "none",
     marginTop: "6px",
     cursor: "pointer",
@@ -341,8 +352,9 @@ const styles = {
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    fontSize: "8px",
-    fontWeight: "bold"
+    fontSize: "9px",
+    fontWeight: "bold",
+    color: "#333"
   },
 
   complete: {

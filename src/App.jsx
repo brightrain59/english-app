@@ -825,8 +825,8 @@ const styles = {
 
   bgmWrapper: {
     position: "fixed",
-    top: "12px",
-    right: "12px",
+    bottom: "16px",
+    right: "16px",
     zIndex: 999
   },
 

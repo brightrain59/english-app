@@ -120,15 +120,12 @@ export default function Paragraph({
   let bi = -1;
   return (
     <div style={styles.container}>
-      <div style={styles.progressBar}>
-        <div style={{ width: `${progress}%`, height: "100%", background: "#22c55e", transition: "width 0.5s" }} />
-      </div>
       <TopBar title={data.title} onBack={goBack} level={level} xp={xp} score={score} progress={progress} />
 
       <h2 style={{ fontSize: "18px", fontWeight: 500, color: "white", marginTop: "30px", marginBottom: "4px", opacity: 0.9 }}>
         📝 Paragraph Completion, Exercise {setIdx + 1}
       </h2>
-      <div style={{ fontSize: "12px", opacity: 0.9 }}>Level: {tierLabel[tier]} ({tier}/3){afterChallenge ? " · Challenge" : ""}</div>
+      <div style={{ fontSize: "14px" }}>난이도: {tierLabel[tier]}{afterChallenge ? " · Challenge" : ""}</div>
       <div style={styles.subtitle}>{set.title}{set.titleKo ? ` · ${set.titleKo}` : ""}</div>
 
       <div style={styles.paragraph}>
@@ -186,7 +183,7 @@ export default function Paragraph({
 const styles = {
   container: {
     minHeight: "100vh",
-    background: "linear-gradient(to bottom, #4facfe, #00c6ff)",
+    background: "transparent",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -205,18 +202,18 @@ const styles = {
   },
   
   subtitle: {
-    fontSize: "16px",
+    fontSize: "17px",
     fontWeight: "600",
     lineHeight: "1.8",
     marginTop: "10px",
-    color: "#333"
+    color: "#fff"
   },
 
   paragraph: {
     marginTop: "20px",
-    fontSize: "15px",
+    fontSize: "17px",
     gap: "10px",
-    lineHeight: "1.8",
+    lineHeight: "2",
     textAlign: "left",
     maxWidth: "400px",
     wordBreak: "keep-all",    // ⭐ 단어 단위 유지
@@ -229,15 +226,15 @@ const styles = {
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-    minWidth: "60px",   // ⭐ 90 → 50
-    height: "24px",     // ⭐ 26 → 24
+    minWidth: "70px",
+    height: "30px",
     margin: "0 2px",    // ⭐ 6 → 2
     padding: "0 4px",
     maxWidth: "120px",  // ⭐ 너무 커지는 것 방지
     borderRadius: "6px",
     backgroundColor: "rgba(255,255,255,0.15)",
     cursor: "pointer",
-    fontSize: "14px",
+    fontSize: "16px",
     transition: "all 0.15s ease"
   },
 
@@ -255,7 +252,7 @@ const styles = {
   },
 
   word: {
-    fontSize: "14px",
+    fontSize: "16px",
     padding: "0 4px",
     letterSpacing: "0.3px",
     display: "inline-block",
@@ -271,15 +268,16 @@ const styles = {
   },
 
   choiceBtn: {
-    padding: "6px 12px",
-    borderRadius: "8px",
+    padding: "9px 16px",
+    borderRadius: "10px",
     border: "none",
-    fontSize: "14px",
+    fontSize: "16px",
     cursor: "pointer"
   },
 
   checkBtn: {
     marginTop: "20px",
+    fontSize: "16px",
     padding: "6px 12px",
     borderRadius: "8px",
     border: "none",
@@ -296,8 +294,8 @@ const styles = {
   },
 
   wrongLive: {
-    backgroundColor: "#9370db",
-    color: "#fff",
+    backgroundColor: "#fecaca",
+    color: "#7f1d1d",
     animation: "shake 0.3s"
   },
 
@@ -342,7 +340,8 @@ const styles = {
   },
 
   resultKo: {
-    fontSize: "14px",
+    fontSize: "16px",
+    lineHeight: 1.7,
     marginTop: "10px",
     textAlign: "left"
   },
@@ -390,8 +389,8 @@ const styles = {
  },
 
   chipUsed: { opacity: 0.35, cursor: "default" },
-  gloss: { fontSize: "12px", color: "#fff", opacity: 0.95, marginTop: "6px", textAlign: "left", lineHeight: 1.6 },
-  hint: { fontSize: "13px", minHeight: "20px", margin: "8px 0", textAlign: "center" },
+  gloss: { fontSize: "14px", color: "#fff", opacity: 0.95, marginTop: "6px", textAlign: "left", lineHeight: 1.6 },
+  hint: { fontSize: "15px", minHeight: "20px", margin: "8px 0", textAlign: "center" },
   ratingText: {
     marginTop: "10px",
     fontSize: "18px",

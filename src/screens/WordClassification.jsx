@@ -133,16 +133,6 @@ export default function WordClassification({
 
   return (
     <div style={styles.container}>
-      <div style={styles.progressBar}>
-        <div
-          style={{
-            width: `${progress}%`,  // ⭐ 여기
-            height: "100%",
-            background: "#22c55e",
-            transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)" // ⭐ 여기
-          }}
-        />
-      </div>
       <TopBar
         title={unitData.title}
         progress={progress}
@@ -329,7 +319,7 @@ export default function WordClassification({
 const styles = {
   container: {
     minHeight: "100vh",
-    background: "linear-gradient(to bottom, #4facfe, #00c6ff)",
+    background: "transparent",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",

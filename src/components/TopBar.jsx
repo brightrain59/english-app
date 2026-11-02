@@ -31,7 +31,7 @@ export default function TopBar({
         <div style={styles.title}>{title}</div>
 
         {/* 점수 */}
-        <div style={styles.score}>⭐ {score}</div>
+        <div style={styles.score}>{score != null ? `⭐ ${score}` : ""}</div>
         </div>
 
       {/* 진행률 바 */}
@@ -44,18 +44,14 @@ export default function TopBar({
         />
         </div>
 
-        <div style={styles.level}>
-          🏅 Lv.{level} | XP {xp}
-        </div>
-
-        <div style={styles.xpBarWrap}>
-          <div
-            style={{
-            ...styles.xpBar,
-            width: `${(xp % 50) * 2}%`   // 🔥 핵심
-            }}
-          />
-        </div>
+        {level != null && xp != null && (
+          <>
+            <div style={styles.level}>🏅 Lv.{level} | XP {xp}</div>
+            <div style={styles.xpBarWrap}>
+              <div style={{ ...styles.xpBar, width: `${(xp % 50) * 2}%` }} />
+            </div>
+          </>
+        )}
       </div>
   );
 }
@@ -75,20 +71,26 @@ const styles = {
   },
 
   backBtn: {
+    minWidth: "56px",
+    textAlign: "left",
     border: "none",
     background: "transparent",
     color: "white",
-    fontSize: "18px",
+    fontSize: "20px",
     cursor: "pointer"
   },
 
   title: {
-    color: "black",
-    fontWeight: "bold"
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: "16px",
+    textAlign: "center"
   },
 
   score: {
-    fontSize: "14px"
+    fontSize: "15px",
+    minWidth: "56px",
+    textAlign: "right"
   },
 
   progressBg: {
@@ -106,7 +108,7 @@ const styles = {
   },
 
   level: {
-    fontSize: "12px",
+    fontSize: "13px",
     color: "white"
   },
 

@@ -139,7 +139,7 @@ export default function ExpressionMatching({
   };
 
   const cardBg = (kind, idx) => {
-    const stem = kind === "s" ? idx : Object.keys(links).find((i) => links[i] === idx);
+    const stem = kind === "s" ? (idx in links ? idx : undefined) : Object.keys(links).find((i) => links[i] === idx);
     if (stem !== undefined) {
       if (locked[stem]) return "linear-gradient(135deg, #f0e7da, #ffeda8)";
       if (wrong[stem]) return "#fecaca";
@@ -151,21 +151,18 @@ export default function ExpressionMatching({
 
   return (
     <div style={styles.container}>
-      <div style={styles.progressBar}>
-        <div style={{ width: `${progress}%`, height: "100%", background: "#22c55e", transition: "width 0.5s" }} />
-      </div>
       <TopBar title={data.title} progress={progress} onBack={goBack} score={score} level={level} xp={xp} />
 
       <h2 style={styles.subtitle}>🔗 Expression Matching, Exercise {setIdx + 1}</h2>
-      <div style={{ fontSize: "12px", opacity: 0.9, marginBottom: "4px" }}>
-        Level: {tierLabel[tier]} ({tier}/3){afterChallenge ? " · Challenge" : ""}
+      <div style={{ fontSize: "14px", marginBottom: "4px" }}>
+        난이도: {tierLabel[tier]}{afterChallenge ? " · Challenge" : ""}
       </div>
 
       <div style={styles.columnsWrapper} ref={containerRef}>
         <svg style={styles.svg}>
           {lineData.map((l) => (
             <path key={l.i} d={`M ${l.p1.x} ${l.p1.y} Q ${(l.p1.x + l.p2.x) / 2} ${(l.p1.y + l.p2.y) / 2 - 40} ${l.p2.x} ${l.p2.y}`}
-              stroke={wrong[l.i] ? "#dc2626" : locked[l.i] ? "#9400d3" : "#a78bfa"} strokeWidth="2.5" fill="none"
+              stroke={wrong[l.i] ? "#ff6b6b" : locked[l.i] ? "#ffd84d" : "#e9d5ff"} strokeWidth="2.5" fill="none"
               strokeDasharray={locked[l.i] || wrong[l.i] ? "none" : "6 4"} />
           ))}
         </svg>
@@ -192,10 +189,10 @@ export default function ExpressionMatching({
 
       {!done && (
         <div style={{ marginTop: "16px", textAlign: "center" }}>
-          <div style={{ fontSize: "13px", minHeight: "20px", marginBottom: "8px" }}>
+          <div style={{ fontSize: "15px", minHeight: "22px", marginBottom: "10px" }}>
             {shake ? "😢 빨간색 연결을 다시 골라 보세요." : allLinked ? "연결을 확인하려면 Check를 누르세요." : "왼쪽과 오른쪽을 하나씩 눌러 4개의 문장을 만드세요."}
           </div>
-          <button style={{ ...styles.okBtn, padding: "10px 28px", opacity: canCheck ? 1 : 0.45 }} disabled={!canCheck} onClick={check}>
+          <button style={{ ...styles.okBtn, padding: "11px 32px", fontSize: "16px", opacity: canCheck ? 1 : 0.45 }} disabled={!canCheck} onClick={check}>
             ✔ Check
           </button>
         </div>
@@ -235,7 +232,7 @@ const styles = {
   container: {
     minHeight: "100vh",
     position: "relative",
-    background: "linear-gradient(to bottom, #4facfe, #00c6ff)",
+    background: "transparent",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -297,8 +294,9 @@ const styles = {
 
   card: {
     textAlign: "left",
-    fontSize: "14px",
-    padding: "10px 12px",
+    fontSize: "15px",
+    lineHeight: 1.35,
+    padding: "11px 12px",
     borderRadius: "10px",
     border: "none",
     cursor: "pointer",
@@ -343,17 +341,20 @@ const styles = {
   },
 
   answerEn: {
-    color: "black",
-    fontSize: "14px"
+    color: "#111",
+    fontSize: "16px",
+    fontWeight: 500
   },
 
   answerKo: {
-    fontSize: "13px"
+    fontSize: "15px",
+    color: "#fff"
   },
 
   tip: {
-    color: "black",
-    fontSize: "13px"
+    color: "#fff",
+    fontSize: "14px",
+    opacity: 0.95
   },
 
   btnRow: {

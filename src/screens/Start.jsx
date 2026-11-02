@@ -223,7 +223,7 @@ function MenuButton({ text, onClick, children }) {
 const styles = {
   container: {
     minHeight: "100vh",
-    background: "linear-gradient(to bottom, #4facfe, #00c6ff)",
+    background: "transparent",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
