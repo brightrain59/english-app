@@ -93,9 +93,7 @@ export default function ParagraphIntro({ goBack, goNext, unit }) {
 
         {/* 지시문 */}
         <p style={styles.instruction}>
-        이제 글에서 단어를 연습하세요. 빈칸에<br />
-        가장 알맞은 단어를 넣으세요. 빈칸 클릭 후<br />
-        아래 단어 중에서 하나를 골라 클릭하세요.
+        이제 글에서 단어를 연습하세요. 빈칸에 가장 알맞은 단어를 넣으세요. 빈칸 클릭 후 아래 단어 중에서 하나를 골라 클릭하세요.
         </p>
 
       <div style={styles.exerciseRow}>
@@ -160,6 +158,11 @@ const styles = {
   },
 
   instruction: {
+    maxWidth: "330px",
+    wordBreak: "keep-all",
+    textAlign: "center",
+    marginLeft: "auto",
+    marginRight: "auto",
     color: "#fff",
     fontSize: "16px",
     lineHeight: "1.8",

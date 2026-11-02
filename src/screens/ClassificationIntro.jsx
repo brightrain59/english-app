@@ -89,8 +89,7 @@ export default function ClassificationIntro
 
       {/* 지시문 */}
       <p style={styles.instruction}>
-        알고 있는 단어와 함께 새로 익힐 단어를 연습하세요.<br />
-        제시되는 단어 중에서 나머지 셋과 다른 것을 클릭하세요.
+        알고 있는 단어와 함께 새로 익힐 단어를 연습하세요. 제시되는 단어 중에서 나머지 셋과 다른 것을 클릭하세요.
       </p>
 
       {/* 이미지 */}
@@ -139,6 +138,11 @@ const styles = {
   },
 
   instruction: {
+    maxWidth: "330px",
+    wordBreak: "keep-all",
+    textAlign: "center",
+    marginLeft: "auto",
+    marginRight: "auto",
     color: "#fff",
     fontSize: "16px",
     lineHeight: "1.8",

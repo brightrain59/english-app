@@ -95,9 +95,7 @@ export default function MatchingIntro({ goBack, goNext, unit }) {
 
       {/* 지시문 */}
       <p style={styles.instruction}>
-        왼쪽 열의 표현 하나를 클릭하세요. 그런 다음<br />
-        오른쪽 열의 표현 하나를 클릭하여 문장을 만드세요.<br />
-        반드시 4개의 자연스러운 문장을 만드세요.
+        왼쪽 열의 표현 하나를 클릭하세요. 그런 다음 오른쪽 열의 표현 하나를 클릭하여 문장을 만드세요. 반드시 4개의 자연스러운 문장을 만드세요.
       </p>
 
       <div style={styles.exerciseRow}>
@@ -162,6 +160,11 @@ const styles = {
   },
 
   instruction: {
+    maxWidth: "330px",
+    wordBreak: "keep-all",
+    textAlign: "center",
+    marginLeft: "auto",
+    marginRight: "auto",
     color: "#fff",
     fontSize: "16px",
     lineHeight: "1.8",
