@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import TopBar from "../components/TopBar";
-import { wordsData } from "../data/words";
 import { play, stopSpeech } from "../lib/audio";
 import { getFlags, toggleFlag } from "../lib/records";
+import { wordsOf } from "../lib/views";
 
 const POS = { n: "명사", v: "동사", adj: "형용사", adv: "부사", prep: "전치사", conj: "접속사", pron: "대명사", det: "한정사" };
 const posLabel = (pos) => (pos ? pos.split("/").map((p) => POS[p.trim()] ?? p.trim()).join(" · ") : "");
@@ -27,7 +27,7 @@ function Highlight({ text, word }) {
  *  3) 15개의 뜻을 모두 확인하면 완료. 정답 판정은 없습니다.
  */
 export default function Preview({ goBack, goNext, setWordsDone, progress, unit, saveProgress }) {
-  const unitData = wordsData[unit];
+  const unitData = wordsOf(unit);
   const words = unitData?.words ?? [];
   const showAll = unit <= 20;                 // 레벨 1(중1)은 뜻·예문·번역을 바로 보여 줌
   const startStage = showAll ? 2 : 0;

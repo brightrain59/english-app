@@ -1,6 +1,6 @@
 import TopBar from "../components/TopBar";
 import { useState } from "react";
-import { wordsData } from "../data/words";
+import { wordsOf } from "../lib/views";
 
 const sounds = {
   click: new Audio("/sounds/click.mp3"),
@@ -82,7 +82,7 @@ export default function Start({
 
   const [open, setOpen] = useState(false);
 
-  const wordUnit = wordsData[unit];
+  const wordUnit = wordsOf(unit);
 
   const isClassification = unit % 2 === 1;   // 홀수 단원 = Word Classification, 짝수 단원 = Word Analogy
   const activityName = isClassification ? "Word Classification" : "Word Analogy";

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { units, LEVEL_LABEL } from "../data/units";
+import { LEVEL_LABEL } from "../lib/views";
+import { loadUnitTitles } from "../lib/data";
 import { canOpenUnit, isFreeUnit, redeemCode, refreshAccess, accessSummary, redeemAvailable, REDEEM_ERRORS } from "../lib/access";
 
 const sounds = {
@@ -80,6 +81,15 @@ export default function Home({ goUnit, unlockedUnits, progress }) {
     setLevel(lv);
     try { localStorage.setItem("wl.homeLevel", String(lv)); } catch {}
   };
+  const [titles, setTitles] = useState({});
+  useEffect(() => {
+    if (titles[level]) return;
+    let on = true;
+    loadUnitTitles(level).then((list) => {
+      if (on) setTitles((t) => ({ ...t, [level]: Object.fromEntries(list.map((x) => [x.unit, String(x.title).replace(/^Unit\s*\d+\.\s*/, "")])) }));
+    }).catch(() => {});
+    return () => { on = false; };
+  }, [level]);
   const [lockedUnit, setLockedUnit] = useState(null);
   const [codeOpen, setCodeOpen] = useState(false);
   const [code, setCode] = useState("");
@@ -96,10 +106,13 @@ export default function Home({ goUnit, unlockedUnits, progress }) {
     else setMsg(`⚠️ ${REDEEM_ERRORS[r.error] ?? REDEEM_ERRORS.invalid}`);
   };
   const owned = accessSummary();
-  const levelUnits = units.filter((u) => u.level === level);
-  const doneIn = (lv) => units.filter((u) => {
-    const p = progress[u.id] || {};
-    return u.level === lv && p.words && (p.classification || p.analogy) && p.matching && p.paragraph;
+  const levelUnits = Array.from({ length: 20 }, (_, i) => {
+    const id = (level - 1) * 20 + i + 1;
+    return { id, title: titles[level]?.[id] ?? "" };
+  });
+  const doneIn = (lv) => Array.from({ length: 20 }, (_, i) => (lv - 1) * 20 + i + 1).filter((id) => {
+    const p = progress[id] || {};
+    return p.words && (p.classification || p.analogy) && p.matching && p.paragraph;
   }).length;
   const unlockAudio = () => {
     const audio = new Audio();

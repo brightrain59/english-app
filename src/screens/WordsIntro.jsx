@@ -1,5 +1,5 @@
 import TopBar from "../components/TopBar";
-import { wordsData } from "../data/words";
+import { wordsOf } from "../lib/views";
 
 const sounds = {
   click: new Audio("/sounds/click.mp3"),
@@ -67,7 +67,7 @@ function createRipple(e) {
 export default function WordsIntro
 ({ goBack, goNext, unit }) {  
   
-  const wordUnit = wordsData[unit];
+  const wordUnit = wordsOf(unit);
   if (!wordUnit) {
   return <div>Loading...</div>;
   }

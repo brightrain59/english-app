@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { playWordText } from "../lib/audio";
 import TopBar from "../components/TopBar";
-import { wordsData } from "../data/words";
-import { classificationData } from "../data/classification";
+import { classificationOf, wordsOf } from "../lib/views";
 
 const sounds = {
   click: new Audio("/sounds/click.mp3"),
@@ -85,7 +84,7 @@ export default function WordClassification({
   const [showComplete, setShowComplete] = useState(false);
   const [wrong, setWrong] = useState(false);
   const [shake, setShake] = useState(false);
-  const questions = classificationData[unit];
+  const questions = classificationOf(unit);
     if (!questions || !questions[currentIndex]) {
     return <div>데이터 없음</div>;
     }
@@ -125,7 +124,7 @@ export default function WordClassification({
   }
 };
 
-  const unitData = wordsData[unit];
+  const unitData = wordsOf(unit);
     if (!unitData) {
     return <div>Loading...</div>;
     }

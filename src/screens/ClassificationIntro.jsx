@@ -1,6 +1,5 @@
 import TopBar from "../components/TopBar";
-import { wordsData } from "../data/words";
-import { classificationData } from "../data/classification";
+import { wordsOf } from "../lib/views";
 
 const sounds = {
   click: new Audio("/sounds/click.mp3"),
@@ -68,7 +67,7 @@ function createRipple(e) {
 export default function ClassificationIntro
 ({ goBack, goNext, unit }) {
 
-  const unitData = wordsData[unit];
+  const unitData = wordsOf(unit);
 
   return (
     <div style={styles.container}>

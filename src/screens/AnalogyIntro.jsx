@@ -1,6 +1,5 @@
 import TopBar from "../components/TopBar";
-import { wordsData } from "../data/words";
-import { analogyData } from "../data/analogy";
+import { analogyOf } from "../lib/views";
 
 const sounds = {
   click: new Audio("/sounds/click.mp3"),
@@ -68,7 +67,7 @@ function createRipple(e) {
 export default function AnalogyIntro
 ({ goBack, goNext, unit }) {
 
-  const unitData = analogyData[unit];
+  const unitData = analogyOf(unit);
     if (!unitData) {
     return <div>데이터 없음</div>;
     }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import TopBar from "../components/TopBar";
-import { wordsData } from "../data/words";
+import { wordsOf } from "../lib/views";
 
 const sounds = {
   click: new Audio("/sounds/click.mp3"),
@@ -70,7 +70,7 @@ export default function MatchingIntro({ goBack, goNext, unit }) {
   const [selectedExercise, setSelectedExercise] = useState(0);
 
   
-  const wordUnit = wordsData[unit];
+  const wordUnit = wordsOf(unit);
   if (!wordUnit) {
   return <div>Loading...</div>;
   }
