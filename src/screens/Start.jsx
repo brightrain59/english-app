@@ -295,15 +295,17 @@ const styles = {
   },
 
   startBtn: {
-    height: "24px",
-    padding: "0 24px",
-    borderRadius: "6px",
+    height: "44px",
+    padding: "0 36px",
+    borderRadius: "8px",
     border: "none",
     background: "linear-gradient(135deg, #ADEBB3, #32CD32)",
     color: "black",
-    fontSize: "14px",
+    fontSize: "17px",
+    fontWeight: 600,
     cursor: "pointer",
-    marginTop: "10px",
+    marginTop: "14px",
+    marginBottom: "6px",
     position: "relative",
     overflow: "hidden"
   },
