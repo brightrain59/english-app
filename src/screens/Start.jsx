@@ -302,7 +302,6 @@ const styles = {
     background: "linear-gradient(135deg, #ADEBB3, #32CD32)",
     color: "black",
     fontSize: "17px",
-    fontWeight: 600,
     cursor: "pointer",
     marginTop: "14px",
     marginBottom: "6px",
