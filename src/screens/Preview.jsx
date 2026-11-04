@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import TopBar from "../components/TopBar";
-import { play, stopSpeech } from "../lib/audio";
+import { play, playSlow, stopSpeech } from "../lib/audio";
 import { getFlags, toggleFlag } from "../lib/records";
 import { wordsOf } from "../lib/views";
 
@@ -104,7 +104,10 @@ export default function Preview({ goBack, goNext, setWordsDone, progress, unit, 
               <>
                 <div style={S.meaning}>{w.meaning}</div>
                 <div style={S.example}>{w.example.split(" / ").map((t, k) => <div key={k}><Highlight text={t} word={w.word} /></div>)}</div>
-                <button style={S.speak} onClick={(e) => { e.stopPropagation(); play(w.exampleAudio, w.example); }} aria-label="예문 듣기">🔊 예문</button>
+                <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+                  <button style={S.speak} onClick={(e) => { e.stopPropagation(); play(w.exampleAudio, w.example); }} aria-label="예문 듣기">🔊 Normal</button>
+                  <button style={S.slow} onClick={(e) => { e.stopPropagation(); playSlow(w.exampleAudio, w.example); }} aria-label="예문 느리게 듣기">🐢 Slow</button>
+                </div>
                 {stage >= 2
                   ? <div style={S.exampleKo}>{w.example_ko.split(" / ").map((t, k) => <div key={k}>{t}</div>)}</div>
                   : <div style={S.hint}>한 번 더 누르면 예문 번역이 나와요</div>}
@@ -155,6 +158,7 @@ const S = {
   word: { fontSize: 32, fontWeight: 700 },
   pos: { fontSize: 13, color: "#6b7280", minHeight: 16 },
   speak: { border: "none", borderRadius: 16, background: "#e0f2fe", color: "#0369a1", fontSize: 13, padding: "6px 14px", cursor: "pointer" },
+  slow: { border: "none", borderRadius: 16, background: "#fef3c7", color: "#92400e", fontSize: 13, padding: "6px 14px", cursor: "pointer" },
   meaning: { fontSize: 20, fontWeight: 600, marginTop: 6 },
   example: { fontSize: 16, lineHeight: 1.5, color: "#222" },
   exampleKo: { fontSize: 14, lineHeight: 1.5, color: "#4b5563" },

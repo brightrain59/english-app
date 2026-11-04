@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import TopBar from "../components/TopBar";
 import { getLoaded } from "../lib/store";
 import { tierLabel } from "../lib/data";
-import { play, stopSpeech, audioPath, matchingSentence } from "../lib/audio";
+import { play, playSlow, stopSpeech, audioPath, matchingSentence } from "../lib/audio";
 import { addRecord } from "../lib/records";
 import { saveSetResult, tierForSet } from "../lib/sets";
 
@@ -203,7 +203,10 @@ export default function ExpressionMatching({
           <p style={styles.feedback}>{done.correct === total ? "🏆 Perfect!" : "👍 Good!"} · First check: {done.correct} / {total}</p>
           {t.pairs.map((pr, i) => (
             <div key={i} style={styles.sentRow}>
-              <button style={styles.repeatBtn} onClick={(e) => { createRipple(e); play(urlOf(i), sentenceOf(i)); }}>🔊</button>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <button style={styles.repeatBtn} onClick={(e) => { createRipple(e); play(urlOf(i), sentenceOf(i)); }}>🔊 Normal</button>
+                <button style={styles.slowBtn} onClick={(e) => { createRipple(e); playSlow(urlOf(i), sentenceOf(i)); }}>🐢 Slow</button>
+              </div>
               <div style={{ flex: 1, textAlign: "left" }}>
                 <div style={styles.answerEn}>{sentenceOf(i)}</div>
                 <div style={styles.answerKo}>{pr.ko}</div>

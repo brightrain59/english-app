@@ -2,7 +2,7 @@ import React, { useState, useEffect, useLayoutEffect, useMemo } from "react";
 import TopBar from "../components/TopBar";
 import { getLoaded } from "../lib/store";
 import { parseBlanks, tierLabel } from "../lib/data";
-import { play, stopSpeech, audioPath, paragraphReadText } from "../lib/audio";
+import { play, playSlow, stopSpeech, audioPath, paragraphReadText } from "../lib/audio";
 import { addRecord } from "../lib/records";
 import { saveSetResult, tierForSet } from "../lib/sets";
 
@@ -110,11 +110,13 @@ export default function Paragraph({
     }
   };
 
-  const listen = async () => {
-    if (playing) { stopSpeech(); setPlaying(false); return; }
-    setPlaying(true);
-    await play(audioPath.paragraph(unit, set.setNo, tier), paragraphReadText(t.text));
-    setPlaying(false);
+  const listen = async (slow = false) => {
+    if (playing === (slow ? "slow" : "normal")) { stopSpeech(); setPlaying(false); return; }
+    const mode = slow ? "slow" : "normal";
+    setPlaying(mode);
+    const url = audioPath.paragraph(unit, set.setNo, tier), txt = paragraphReadText(t.text);
+    await (slow ? playSlow(url, txt) : play(url, txt));
+    setPlaying((m) => (m === mode ? false : m));
   };
 
   let bi = -1;
@@ -167,7 +169,8 @@ export default function Paragraph({
             <div style={styles.gloss}>📖 {t.glossary.map((g) => `${g.en} = ${g.ko}`).join(" · ")}</div>
           )}
           <div style={styles.resultButtons}>
-            <button style={styles.btnListen} onClick={listen}>{playing ? "⏹ Stop" : "🔊 Listen"}</button>
+            <button style={styles.btnListen} onClick={() => listen(false)}>{playing === "normal" ? "⏹ Stop" : "🔊 Normal"}</button>
+            <button style={{ ...styles.btnListen, background: "#fef3c7" }} onClick={() => listen(true)}>{playing === "slow" ? "⏹ Stop" : "🐢 Slow"}</button>
           </div>
           <div style={{ ...styles.resultButtons, flexWrap: "wrap" }}>
             <button style={styles.btnOk} onClick={() => { stopSpeech(); goNext && goNext(); }}>👉 {isLast ? "Finish" : "Next set"}</button>

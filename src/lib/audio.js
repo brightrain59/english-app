@@ -24,12 +24,27 @@ function speakFallback(text, rate = 1) {
   });
 }
 
+export const SLOW_RATE = 0.88; // 느린 버전: 12% 느리게(느린 파일이 없을 때 원본을 이 배속으로 재생)
+export const slowUrl = (url) => String(url).replace(/\.mp3$/, "_slow.mp3");
+
 /** url의 mp3를 재생. 파일이 없거나 재생 실패 시 fallbackText를 내장 음성으로 읽음. 재생이 끝나면 resolve. */
 export function play(url, fallbackText = "", rate = 1) {
   stopSpeech();
   return new Promise((resolve) => {
-    const a = new Audio(url); a.playbackRate = rate; current = a;
-    const fb = () => { if (current === a) current = null; speakFallback(fallbackText, rate).then(resolve); };
+    const a = new Audio(url); a.playbackRate = rate; a.preservesPitch = true; current = a;
+    const fb = () => { if (current !== a) return resolve(); current = null; speakFallback(fallbackText, rate).then(resolve); };
+    a.addEventListener("ended", () => { if (current === a) current = null; resolve(); });
+    a.addEventListener("error", fb);
+    a.play().catch(fb);
+  });
+}
+
+/** 느린 버전 재생: `이름_slow.mp3`가 있으면 그것을, 없으면 원본을 SLOW_RATE 배속으로 재생합니다. */
+export function playSlow(url, fallbackText = "") {
+  stopSpeech();
+  return new Promise((resolve) => {
+    const a = new Audio(slowUrl(url)); current = a;
+    const fb = () => { if (current !== a) return resolve(); current = null; play(url, fallbackText, SLOW_RATE).then(resolve); };
     a.addEventListener("ended", () => { if (current === a) current = null; resolve(); });
     a.addEventListener("error", fb);
     a.play().catch(fb);
