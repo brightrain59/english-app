@@ -4811,8 +4811,8 @@ export const paragraphData = {
             ]
           },
           "2": {
-            "text": "Taking regular time to [[reflect]] on our actions and choices is one of the most important habits a person can build. Life is [[complex]], and thoughtful people make decisions they are later sorry for. [[Maintaining:maintain]] the habit of looking clearly at ourselves, [[estimating:estimate]] where things went wrong, and finding the [[major]] lessons is not comfortable. Yet those with this habit grow in ways others cannot.",
-            "ko": "자기 행동과 선택을 돌아보는 시간을 꾸준히 갖는 것은 사람이 들일 수 있는 가장 중요한 습관 중 하나다. 삶은 복잡해서, 사려 깊은 사람도 나중에 후회할 결정을 내린다. 자신을 또렷이 들여다보고, 어디서 어긋났는지 헤아리고, 주요한 교훈을 찾아내는 습관을 이어 가는 일은 편안하지 않다. 그럼에도 이 습관을 지닌 사람은 다른 이들이 이르지 못하는 방식으로 자라난다.",
+            "text": "Taking regular time to [[reflect]] on our actions and choices is one of the most important habits a person can build. Life is [[complex]], and even thoughtful people make decisions they are later sorry for. [[Maintaining:maintain]] the habit of looking clearly at ourselves, [[estimating:estimate]] where things went wrong, and finding the [[major]] lessons is not comfortable. Yet those with this habit grow in ways others cannot.",
+            "ko": "자기 행동과 선택을 돌아보는 시간을 꾸준히 갖는 것은 사람이 들일 수 있는 가장 중요한 습관 중 하나다. 삶은 복잡해서, 사려 깊은 사람조차 나중에 후회할 결정을 내린다. 자신을 또렷이 들여다보고, 어디서 어긋났는지 헤아리고, 주요한 교훈을 찾아내는 습관을 이어 가는 일은 편안하지 않다. 그럼에도 이 습관을 지닌 사람은 다른 이들이 이르지 못하는 방식으로 자라난다.",
             "glossary": [
               {
                 "en": "choices",
