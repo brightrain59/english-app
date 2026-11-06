@@ -5,7 +5,7 @@ export const FREE_UNITS = [1, 2, 21, 22, 41, 42, 61, 62];
 const DEV_KEY = "wl.device", ENT_KEY = "wl.access.v1";
 // 환경변수 값 앞뒤의 공백·따옴표·끝의 "/" 또는 "/rest/v1"이 섞여 들어가도 동작하게 정리합니다.
 const clean = (v) => String(v ?? "").trim().replace(/^["']|["']$/g, "").trim();
-const URL_ = clean(import.meta.env?.VITE_SUPABASE_URL).replace(/\/+$/, "").replace(/\/rest\/v1$/, ""), KEY_ = clean(import.meta.env?.VITE_SUPABASE_ANON_KEY);
+const URL_ = ((u) => (u && !/^https?:\/\//i.test(u) ? `https://${u}` : u))(clean(import.meta.env?.VITE_SUPABASE_URL).replace(/\/+$/, "").replace(/\/rest\/v1$/, "")), KEY_ = clean(import.meta.env?.VITE_SUPABASE_ANON_KEY);
 const safe = (fn, d) => { try { return fn(); } catch { return d; } };
 
 export const redeemAvailable = () => !!(URL_ && KEY_);
