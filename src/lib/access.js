@@ -3,7 +3,9 @@
 export const FREE_UNITS = [1, 2, 21, 22, 41, 42, 61, 62];
 
 const DEV_KEY = "wl.device", ENT_KEY = "wl.access.v1";
-const URL_ = import.meta.env?.VITE_SUPABASE_URL, KEY_ = import.meta.env?.VITE_SUPABASE_ANON_KEY;
+// 환경변수 값 앞뒤의 공백·따옴표·끝의 "/" 또는 "/rest/v1"이 섞여 들어가도 동작하게 정리합니다.
+const clean = (v) => String(v ?? "").trim().replace(/^["']|["']$/g, "").trim();
+const URL_ = clean(import.meta.env?.VITE_SUPABASE_URL).replace(/\/+$/, "").replace(/\/rest\/v1$/, ""), KEY_ = clean(import.meta.env?.VITE_SUPABASE_ANON_KEY);
 const safe = (fn, d) => { try { return fn(); } catch { return d; } };
 
 export const redeemAvailable = () => !!(URL_ && KEY_);
@@ -45,12 +47,18 @@ export function accessSummary() {
 }
 
 async function rpc(name, body) {
-  const r = await fetch(`${URL_}/rest/v1/rpc/${name}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", apikey: KEY_, ...(String(KEY_).startsWith("eyJ") ? { Authorization: `Bearer ${KEY_}` } : {}) },
-    body: JSON.stringify(body),
-  });
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  let r;
+  try {
+    r = await fetch(`${URL_}/rest/v1/rpc/${name}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: KEY_, ...(String(KEY_).startsWith("eyJ") ? { Authorization: `Bearer ${KEY_}` } : {}) },
+      body: JSON.stringify(body),
+    });
+  } catch { throw new Error(typeof navigator !== "undefined" && navigator.onLine === false ? "오프라인" : "서버에 닿지 않음"); }
+  if (!r.ok) {
+    let msg = ""; try { msg = (await r.json())?.message ?? ""; } catch { /* 본문 없음 */ }
+    throw new Error(`HTTP ${r.status}${msg ? " " + String(msg).slice(0, 80) : ""}`);
+  }
   return r.json();
 }
 
@@ -72,7 +80,7 @@ export async function redeemCode(code) {
     const res = await rpc("redeem_code", { p_code: code, p_device: deviceId() });
     if (res?.ok) { saveUnits(res.units ?? {}); return { ok: true }; }
     return { ok: false, error: res?.error ?? "invalid" };
-  } catch { return { ok: false, error: "network" }; }
+  } catch (e) { return { ok: false, error: "network", detail: String(e?.message ?? "") }; }
 }
 
 /** 앱을 열 때 서버와 맞춰 보기(취소·만료 반영). 인터넷이 없으면 보관된 값을 그대로 씁니다. */

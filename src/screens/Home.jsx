@@ -103,7 +103,7 @@ export default function Home({ goUnit, unlockedUnits, progress }) {
     const r = await redeemCode(code);
     setBusy(false);
     if (r.ok) { setCode(""); setMsg("✅ 이용권이 등록되었어요!"); setTick((t) => t + 1); }
-    else setMsg(`⚠️ ${REDEEM_ERRORS[r.error] ?? REDEEM_ERRORS.invalid}`);
+    else setMsg(`⚠️ ${REDEEM_ERRORS[r.error] ?? REDEEM_ERRORS.invalid}${r.detail ? ` (${r.detail})` : ""}`);
   };
   const owned = accessSummary();
   const levelUnits = Array.from({ length: 20 }, (_, i) => {
