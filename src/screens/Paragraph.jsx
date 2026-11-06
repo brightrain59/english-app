@@ -2,7 +2,7 @@ import React, { useState, useEffect, useLayoutEffect, useMemo } from "react";
 import TopBar from "../components/TopBar";
 import { getLoaded } from "../lib/store";
 import { parseBlanks, tierLabel } from "../lib/data";
-import { play, playSlow, stopSpeech, audioPath, paragraphReadText } from "../lib/audio";
+import { play, playFast, stopSpeech, audioPath, paragraphReadText } from "../lib/audio";
 import { addRecord } from "../lib/records";
 import { saveSetResult, tierForSet } from "../lib/sets";
 
@@ -110,12 +110,12 @@ export default function Paragraph({
     }
   };
 
-  const listen = async (slow = false) => {
-    if (playing === (slow ? "slow" : "normal")) { stopSpeech(); setPlaying(false); return; }
-    const mode = slow ? "slow" : "normal";
+  const listen = async (fast = false) => {
+    const mode = fast ? "fast" : "normal";
+    if (playing === mode) { stopSpeech(); setPlaying(false); return; }
     setPlaying(mode);
     const url = audioPath.paragraph(unit, set.setNo, tier), txt = paragraphReadText(t.text);
-    await (slow ? playSlow(url, txt) : play(url, txt));
+    await (fast ? playFast(url, txt) : play(url, txt));
     setPlaying((m) => (m === mode ? false : m));
   };
 
@@ -170,7 +170,7 @@ export default function Paragraph({
           )}
           <div style={styles.resultButtons}>
             <button style={styles.btnListen} onClick={() => listen(false)}>{playing === "normal" ? "⏹ Stop" : "🔊 Normal"}</button>
-            <button style={{ ...styles.btnListen, background: "#fef3c7" }} onClick={() => listen(true)}>{playing === "slow" ? "⏹ Stop" : "🐢 Slow"}</button>
+            <button style={{ ...styles.btnListen, background: "#fef3c7" }} onClick={() => listen(true)}>{playing === "fast" ? "⏹ Stop" : "⚡ Fast"}</button>
           </div>
           <div style={{ ...styles.resultButtons, flexWrap: "wrap" }}>
             <button style={styles.btnOk} onClick={() => { stopSpeech(); goNext && goNext(); }}>👉 {isLast ? "Finish" : "Next set"}</button>

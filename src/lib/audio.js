@@ -25,31 +25,37 @@ function speakFallback(text, rate = 1) {
 }
 
 export const SLOW_RATE = 0.88; // 느린 버전: 12% 느리게(느린 파일이 없을 때 원본을 이 배속으로 재생)
+export const FAST_RATE = 1.08; // 빠른 버전: 8% 빠르게(빠른 파일이 없을 때)
 export const slowUrl = (url) => String(url).replace(/\.mp3$/, "_slow.mp3");
+export const fastUrl = (url) => String(url).replace(/\.mp3$/, "_fast.mp3");
 
 /** url의 mp3를 재생. 파일이 없거나 재생 실패 시 fallbackText를 내장 음성으로 읽음. 재생이 끝나면 resolve. */
 export function play(url, fallbackText = "", rate = 1) {
   stopSpeech();
   return new Promise((resolve) => {
     const a = new Audio(url); a.playbackRate = rate; a.preservesPitch = true; current = a;
-    const fb = () => { if (current !== a) return resolve(); current = null; speakFallback(fallbackText, rate).then(resolve); };
+    let failed = false; // error 이벤트와 play() 실패가 함께 올 수 있어, 한 번만 대체 처리
+    const fb = () => { if (failed) return; failed = true; if (current !== a) return resolve(); current = null; speakFallback(fallbackText, rate).then(resolve); };
     a.addEventListener("ended", () => { if (current === a) current = null; resolve(); });
     a.addEventListener("error", fb);
     a.play().catch(fb);
   });
 }
 
-/** 느린 버전 재생: `이름_slow.mp3`가 있으면 그것을, 없으면 원본을 SLOW_RATE 배속으로 재생합니다. */
-export function playSlow(url, fallbackText = "") {
+/** 변형 버전(`이름_slow.mp3` 등)을 재생. 파일이 없으면 원본을 rate 배속으로 재생합니다. */
+function playVariant(url, variantUrl, rate, fallbackText) {
   stopSpeech();
   return new Promise((resolve) => {
-    const a = new Audio(slowUrl(url)); current = a;
-    const fb = () => { if (current !== a) return resolve(); current = null; play(url, fallbackText, SLOW_RATE).then(resolve); };
+    const a = new Audio(variantUrl); current = a;
+    let failed = false;
+    const fb = () => { if (failed) return; failed = true; if (current !== a) return resolve(); current = null; play(url, fallbackText, rate).then(resolve); };
     a.addEventListener("ended", () => { if (current === a) current = null; resolve(); });
     a.addEventListener("error", fb);
     a.play().catch(fb);
   });
 }
+export const playSlow = (url, fallbackText = "") => playVariant(url, slowUrl(url), SLOW_RATE, fallbackText);
+export const playFast = (url, fallbackText = "") => playVariant(url, fastUrl(url), FAST_RATE, fallbackText);
 
 /** Matching 정답 문장(줄기 + 정답 보기) — 대본과 같은 규칙. */
 export function matchingSentence(stem, option) {
